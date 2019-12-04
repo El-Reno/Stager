@@ -297,7 +297,7 @@ namespace Stager
                 if (trueJitter > beacon)    // Make sure jitter won't make beacon less than 0
                     trueJitter = 0;
 #if DEBUG
-                Console.WriteLine("[*] Beacon time: {0} /tJitter time {1}/tAdd: {2}", beacon, trueJitter, add);       
+                Console.WriteLine("[*] Beacon time: {0} \tJitter time {1}\tAdd: {2}", beacon, trueJitter, add);       
 #endif
                 if (add)    // Now sleep
                     Thread.Sleep((beacon + trueJitter) * 1000);
@@ -318,7 +318,7 @@ namespace Stager
                     commandUriList.Add(tmp);
                 }
 #if DEBUG
-                Console.WriteLine("Command: " + result.Command);
+                Console.WriteLine("Command: " + result.Command + "\t" + result.FullCommandString);
 #endif
                 if(result != null)
                 {

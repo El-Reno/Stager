@@ -149,6 +149,7 @@ namespace Stager
 #endif
                         break;
                     case "load":
+                        command = Command.Load;
                         uris.Add(new Uri(splitCommandString[1]));
                         break;
                     case "add":
