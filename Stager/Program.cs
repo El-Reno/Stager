@@ -13,7 +13,7 @@ namespace Stager
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
             string path = @"C:\Users\kylee\Documents\uris.txt";
             FileInfo info = new FileInfo(path);
