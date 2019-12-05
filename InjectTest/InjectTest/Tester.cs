@@ -1,5 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace InjectTest
@@ -22,22 +26,33 @@ namespace InjectTest
             Console.WriteLine(output);
         }
 
-        public static string EnumerateDirectoryStructure(string dir)
+        public static string EnumerateDirectoryStructure(string dir, string format)
         {
-            string structure = "-";
+            if (format.Contains("ASCII"))
+                return EnumerateDirectoryStructureASCII(dir, 0);
+            else
+                return "";
+        }
+
+        private static string EnumerateDirectoryStructureASCII(string dir, int l)
+        {
+            string level = "";
+            for (int i = 0; i < l; i++)
+                level += "-";
+            level += " ";
+            string structure = level + dir + "\n";
             DirectoryInfo info = new DirectoryInfo(dir);
-            foreach(DirectoryInfo i in info.EnumerateDirectories())
+            foreach (DirectoryInfo i in info.EnumerateDirectories())
             {
-                structure += String.Format("- {0}", i.FullName) + "\n";
-                
+                structure += "|" + EnumerateDirectoryStructureASCII(i.FullName, l+1);
                 try
                 {
                     foreach (string file in Directory.EnumerateFiles(i.FullName))
                     {
-                        structure += String.Format("-- {0}", file) + "\n";
+                        structure += String.Format("|{0}{1}", level, file) + "\n";
                     }
                 }
-                catch (UnauthorizedAccessException e) 
+                catch (UnauthorizedAccessException e)
                 {
                     Console.WriteLine("Denied Access");
                 }

@@ -12,7 +12,7 @@ namespace InjectTestTester
         static void Main(string[] args)
         {
             //Tester.Execute();
-            Console.WriteLine(Tester.EnumerateDirectoryStructure(@"C:\Windows\security"));
+            Console.WriteLine(Tester.EnumerateDirectoryStructure(@"C:\Users\kylee\Documents\NetBeansProjects", "ASCII"));
             Console.ReadLine();
         }
     }
