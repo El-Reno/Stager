@@ -15,9 +15,13 @@ namespace Stager
     {
         static async Task Main(string[] args)
         {
-            string path = "C:\\Users\\kylee\\Documents\\uris.txt";
+            string path = @"C:\Users\kylee\Documents\uris.txt";
             FileInfo info = new FileInfo(path);
-            StageZero stage = new StageZero(info, 5, 5);
+            StageZero stage;
+            if (info.Exists)
+                stage = new StageZero(info, 5, 5);
+            else
+                Console.WriteLine("URI file does not exist!");
             //StagerCommand cmd = await stage.RequestCommand(new Uri("http://192.168.1.194"));
             //Console.WriteLine("Command: " + cmd.Command);
             //if (cmd.Command == Command.Load)
