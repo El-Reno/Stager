@@ -25,11 +25,21 @@ namespace InjectTest
             p.WaitForExit();
             Console.WriteLine(output);
         }
-
+        /// <summary>
+        /// This function is called by the requestor to recursively look through the supplied directory
+        /// </summary>
+        /// <param name="dir">The directory to begin looking through</param>
+        /// <param name="format">The output format for the directory traversal. Accepted formats are: ASCII, JSON, or XML</param>
+        /// <returns></returns>
         public static string EnumerateDirectoryStructure(string dir, string format)
         {
+            format = format.ToUpper();
             if (format.Contains("ASCII"))
                 return EnumerateDirectoryStructureASCII(dir, 0);
+            else if (format.Contains("JSON"))
+                return "";
+            else if (format.Contains("XML"))
+                return "";
             else
                 return "";
         }
