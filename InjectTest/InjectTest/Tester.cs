@@ -22,17 +22,18 @@ namespace InjectTest
             Console.WriteLine(output);
         }
 
-        public static void Enumerate(string dir)
+        public static string EnumerateDirectoryStructure(string dir)
         {
+            string structure = "";
             DirectoryInfo info = new DirectoryInfo(dir);
             foreach(DirectoryInfo i in info.EnumerateDirectories())
             {
-                Console.WriteLine(i.FullName);
+                structure += String.Format("- {0}", i.FullName) + "\n";
                 try
                 {
                     foreach (string file in Directory.EnumerateFiles(i.FullName))
                     {
-                        Console.WriteLine(file);
+                        structure += String.Format("-- {0}", file) + "\n";
                     }
                 }
                 catch (UnauthorizedAccessException e) 
@@ -40,6 +41,7 @@ namespace InjectTest
                     Console.WriteLine("Denied Access");
                 }
             }
+            return structure;
         }
 
         public static void ExecuteAnother(string msg)

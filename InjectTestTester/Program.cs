@@ -12,7 +12,7 @@ namespace InjectTestTester
         static void Main(string[] args)
         {
             //Tester.Execute();
-            Tester.Enumerate(@"C:\Windows\security");
+            Console.WriteLine(Tester.EnumerateDirectoryStructure(@"C:\Windows\security"));
             Console.ReadLine();
         }
     }
