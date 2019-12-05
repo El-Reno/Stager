@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stager", "Stager\Stager.csproj", "{7E9CCC88-7EE7-4383-856A-33A544B2DBC3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InjectTest", "..\InjectTest\InjectTest\InjectTest.csproj", "{47C97E31-DC76-478F-8560-EEA3C9F8DD47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InjectTest", "InjectTest\InjectTest\InjectTest.csproj", "{2D668867-EBC3-43F8-AD61-15CDA913F45F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{7E9CCC88-7EE7-4383-856A-33A544B2DBC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E9CCC88-7EE7-4383-856A-33A544B2DBC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E9CCC88-7EE7-4383-856A-33A544B2DBC3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{47C97E31-DC76-478F-8560-EEA3C9F8DD47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{47C97E31-DC76-478F-8560-EEA3C9F8DD47}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{47C97E31-DC76-478F-8560-EEA3C9F8DD47}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{47C97E31-DC76-478F-8560-EEA3C9F8DD47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D668867-EBC3-43F8-AD61-15CDA913F45F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D668867-EBC3-43F8-AD61-15CDA913F45F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D668867-EBC3-43F8-AD61-15CDA913F45F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D668867-EBC3-43F8-AD61-15CDA913F45F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
