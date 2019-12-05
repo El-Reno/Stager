@@ -24,11 +24,12 @@ namespace InjectTest
 
         public static string EnumerateDirectoryStructure(string dir)
         {
-            string structure = "";
+            string structure = "-";
             DirectoryInfo info = new DirectoryInfo(dir);
             foreach(DirectoryInfo i in info.EnumerateDirectories())
             {
                 structure += String.Format("- {0}", i.FullName) + "\n";
+                
                 try
                 {
                     foreach (string file in Directory.EnumerateFiles(i.FullName))
