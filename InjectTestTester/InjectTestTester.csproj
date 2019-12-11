@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DirectoryTraversal.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -50,9 +51,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InjectTest\InjectTest\InjectTest.csproj">
-      <Project>{2d668867-ebc3-43f8-ad61-15cda913f45f}</Project>
-      <Name>InjectTest</Name>
+    <ProjectReference Include="..\DirectoryTraversal\DirectoryTraversal\DirectoryTraversal.csproj">
+      <Project>{b44a8e91-7e2b-498b-9658-d72274e8cc6d}</Project>
+      <Name>DirectoryTraversal</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
