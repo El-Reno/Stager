@@ -60,7 +60,7 @@ namespace Reno.Stages
             return directory;
         }
         /// <summary>
-        /// This function enumerates the entire directory structure from a given starting point and outputs it in ASCII string format
+        /// This function enumerates the entire directory structure from a given starting point and outputs it in text string format
         /// </summary>
         /// <param name="dir">The starting directory to recursively enumerate as a string</param>
         /// <param name="l">The level the current directory is at - used for recursive purposes</param>
@@ -90,7 +90,11 @@ namespace Reno.Stages
             }
             return structure;
         }
-
+        /// <summary>
+        /// This function enumerates the entire directory structure from a given starting point and outputs it in XML format
+        /// </summary>
+        /// <param name="dir">The starting directory to recursively enumerate as a string</param>
+        /// <param name="writer">The XmlWriter object to write to</param>
         private static void EnumerateDirectoryStructureXML(string dir, ref XmlWriter writer)
         {
             DirectoryInfo info = new DirectoryInfo(dir);
