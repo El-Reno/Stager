@@ -8,9 +8,8 @@ namespace Reno.Stages
 {
     public class DirectoryTraversal
     {
-        public static void Execute()
+        public static string Execute()
         {
-            Console.WriteLine("This is a test string from a loaded DLL");
             string command = @"/C tree C:\ /F /A";
             Process p = new Process();
             p.StartInfo.FileName = "cmd.exe";
@@ -21,7 +20,7 @@ namespace Reno.Stages
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
             p.WaitForExit();
-            Console.WriteLine(output);
+            return output;
         }
         /// <summary>
         /// This function calls one of several helper functions depending on the formate requested for a directory structure enumeration
