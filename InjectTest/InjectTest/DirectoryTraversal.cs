@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Xml;
 using System.Text;
 
-namespace InjectTest
+namespace Reno.Stages
 {
-    public class Tester
+    public class DirectoryTraversal
     {
         public static void Execute()
         {

@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stager", "Stager\Stager.csproj", "{7E9CCC88-7EE7-4383-856A-33A544B2DBC3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InjectTest", "InjectTest\InjectTest\InjectTest.csproj", "{2D668867-EBC3-43F8-AD61-15CDA913F45F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DirectoryTraversal", "InjectTest\InjectTest\DirectoryTraversal.csproj", "{2D668867-EBC3-43F8-AD61-15CDA913F45F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InjectTestTester", "InjectTestTester\InjectTestTester.csproj", "{9427827A-840C-4D73-BB58-E86796826DA5}"
 EndProject

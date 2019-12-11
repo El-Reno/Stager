@@ -50,9 +50,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\InjectTest\InjectTest\InjectTest.csproj">
+    <ProjectReference Include="..\InjectTest\InjectTest\DirectoryTraversal.csproj">
       <Project>{2d668867-ebc3-43f8-ad61-15cda913f45f}</Project>
-      <Name>InjectTest</Name>
+      <Name>DirectoryTraversal</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
