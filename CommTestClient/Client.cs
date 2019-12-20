@@ -25,8 +25,9 @@ namespace CommTestClient
             byte[] bytes = clearChannel.ReceiveMessage();
             for(int i = 0; i < bytes.Length; i++)
             {
-                Console.WriteLine("Byte received: " + bytes[i]);
+                //Console.WriteLine("Byte received: " + bytes[i]);
             }
+            Console.WriteLine(Encoding.UTF8.GetString(bytes));
             Console.ReadLine();
         }
     }
