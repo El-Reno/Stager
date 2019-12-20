@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9427827A-840C-4D73-BB58-E86796826DA5}</ProjectGuid>
+    <ProjectGuid>{677B732B-4081-48C5-A696-2058262A0EAC}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>InjectTestTester</RootNamespace>
-    <AssemblyName>InjectTestTester</AssemblyName>
+    <RootNamespace>CommTestClient</RootNamespace>
+    <AssemblyName>CommTestClient</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -43,16 +43,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Client.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DirectoryTraversal\DirectoryTraversal\DirectoryTraversal.csproj">
-      <Project>{b44a8e91-7e2b-498b-9658-d72274e8cc6d}</Project>
-      <Name>DirectoryTraversal</Name>
+    <ProjectReference Include="..\CommChannels\CommChannels.csproj">
+      <Project>{0b2ba472-9952-42f1-acef-109b4cee494e}</Project>
+      <Name>CommChannels</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

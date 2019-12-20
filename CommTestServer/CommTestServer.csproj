@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9427827A-840C-4D73-BB58-E86796826DA5}</ProjectGuid>
+    <ProjectGuid>{0EB302B4-7C91-4298-9123-157A50627C4F}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>InjectTestTester</RootNamespace>
-    <AssemblyName>InjectTestTester</AssemblyName>
+    <RootNamespace>CommTestServer</RootNamespace>
+    <AssemblyName>CommTestServer</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -43,17 +43,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DirectoryTraversal\DirectoryTraversal\DirectoryTraversal.csproj">
-      <Project>{b44a8e91-7e2b-498b-9658-d72274e8cc6d}</Project>
-      <Name>DirectoryTraversal</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
