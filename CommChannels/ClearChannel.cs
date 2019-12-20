@@ -45,7 +45,7 @@ namespace Reno.Comm
             }
             
         }
-        public override void SendMessage()
+        public override void SendMessage(CommMessage commMessage)
         {
 
         }
@@ -53,28 +53,17 @@ namespace Reno.Comm
         /// This method receives a message from the connection.
         /// </summary>
         /// <param name="buffer"></param>
-        public override byte[] ReceiveMessage()
+        public override CommMessage ReceiveMessage()
         {
             int bytes = -1;
             byte[] buffer = new byte[CHUNK_SIZE]; // 1024
-            byte command;
-            byte compression;
-            byte[] length = new byte[2];
             Stream stream = tcpClient.GetStream();
             if (tcpClient.Connected)
             {
-                // Read the command
-                int tmp = stream.ReadByte();
-                Console.WriteLine("Byte read: " + tmp);
-                do
-                {
-
-                    bytes = stream.Read(buffer, 0, buffer.Length);
-
-                } while (bytes != 0);
+                bytes = stream.Read(buffer, 0, buffer.Length);
             }
 
-            return buffer;
+            return new CommMessage(null, null);
         }
     }
 }

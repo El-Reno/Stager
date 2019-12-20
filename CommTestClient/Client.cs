@@ -23,11 +23,23 @@ namespace CommTestClient
             */
             ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8000, "NONE");
             byte[] bytes = clearChannel.ReceiveMessage();
-            for(int i = 0; i < bytes.Length; i++)
+            int command = 0;
+            int length = 0;
+            string data = "";
+            // Parse the message
+            using (var memStream = new MemoryStream(bytes))
             {
-                //Console.WriteLine("Byte received: " + bytes[i]);
+                using(var binStream = new BinaryReader(memStream))
+                {
+                    command = IPAddress.NetworkToHostOrder(binStream.ReadInt32());
+                    length = IPAddress.NetworkToHostOrder(binStream.ReadInt32());
+                    data = Encoding.UTF8.GetString(binStream.ReadBytes(length));
+                }
             }
-            Console.WriteLine(Encoding.UTF8.GetString(bytes));
+            Console.WriteLine("[*] Command {0}", command & 0x000F);
+            Console.WriteLine("[*] Compression {0}", command & 0x00F0);
+            Console.WriteLine("[*] Data Length {0}", length);
+            Console.WriteLine("[*] Data {0}", data);
             Console.ReadLine();
         }
     }
