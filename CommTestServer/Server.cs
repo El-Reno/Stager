@@ -8,6 +8,8 @@ using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using Reno.Comm;
+using Reno.Stages;
+using System.Reflection;
 
 namespace CommTestServer
 {
@@ -25,22 +27,25 @@ namespace CommTestServer
                 Console.WriteLine("[*] Creating test command");
                 // Need command, compression, length of data, and data
                 int command = CommChannel.LS | CommChannel.DEFLATE;
-                char[] data = "Some random text".ToCharArray();
+                string dir = DirectoryTraversal.EnumerateDirectoryStructure(@"C:\Users\kylee\Documents\GitHub\AdventOfCode", "TEXT");
+                Console.WriteLine(dir.Length);
+                //char[] data = "Some random text".ToCharArray();
+                char[] data = dir.ToCharArray();
                 int data_len = data.Length;
-                Console.WriteLine("String length: {0}", data_len);
-                int total_len = sizeof(int) + sizeof(int) + data_len;
-                byte[] data_buffer = new byte[total_len];
+                int data_header_len = sizeof(int) + sizeof(int);
+                byte[] data_header = new byte[data_header_len];
+                byte[] data_buffer = new byte[data_len];
                 using (var memStream = new MemoryStream())
                 {
                     using (var binStream = new BinaryWriter(memStream))
                     {
                         binStream.Write(IPAddress.HostToNetworkOrder(command));
                         binStream.Write(IPAddress.HostToNetworkOrder(data_len));
-                        binStream.Write(data);
                     }
                     data_buffer = memStream.ToArray();
                 }
-                client.GetStream().Write(data_buffer, 0, total_len);
+                client.GetStream().Write(data_buffer, 0, data_header_len);
+                //client.GetStream().Write(Encoding.UTF8.GetBytes(data), 0, data_len);
                 client.Close();
                 server.Stop();
             }

@@ -54,6 +54,10 @@
       <Project>{0b2ba472-9952-42f1-acef-109b4cee494e}</Project>
       <Name>CommChannels</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DirectoryTraversal\DirectoryTraversal\DirectoryTraversal.csproj">
+      <Project>{b44a8e91-7e2b-498b-9658-d72274e8cc6d}</Project>
+      <Name>DirectoryTraversal</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

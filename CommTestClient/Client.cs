@@ -7,6 +7,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using Reno.Comm;
+using Reno.Stages;
 
 namespace CommTestClient
 {
@@ -14,32 +15,32 @@ namespace CommTestClient
     {
         static void Main(string[] args)
         {
-            /*TcpClient client = new TcpClient("127.0.0.1", 8000);
-            int bytes = -1;
-            do
-            {
-                Console.WriteLine("Byte received: " + client.GetStream().ReadByte());
-            } while (bytes != 0);
-            */
             ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8000, "NONE");
-            byte[] bytes = clearChannel.ReceiveMessage();
+            //CommMessage msg = clearChannel.ReceiveMessage();
+            CommandHeader header = clearChannel.ReceiveHeader();
             int command = 0;
             int length = 0;
             string data = "";
             // Parse the message
-            using (var memStream = new MemoryStream(bytes))
+            using (var memStream = new MemoryStream(header.GetBytes))
             {
                 using(var binStream = new BinaryReader(memStream))
                 {
                     command = IPAddress.NetworkToHostOrder(binStream.ReadInt32());
                     length = IPAddress.NetworkToHostOrder(binStream.ReadInt32());
-                    data = Encoding.UTF8.GetString(binStream.ReadBytes(length));
                 }
             }
             Console.WriteLine("[*] Command {0}", command & 0x000F);
             Console.WriteLine("[*] Compression {0}", command & 0x00F0);
             Console.WriteLine("[*] Data Length {0}", length);
-            Console.WriteLine("[*] Data {0}", data);
+            /*using (var memStream = new MemoryStream(msg.Message))
+            {
+                using (var binStream = new BinaryReader(memStream))
+                {
+                    data = Encoding.UTF8.GetString(binStream.ReadBytes(length));
+                }
+            }
+            Console.WriteLine("[*] Data {0}", data);*/
             Console.ReadLine();
         }
     }
