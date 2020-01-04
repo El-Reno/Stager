@@ -30,8 +30,8 @@ namespace Reno.Comm
         public abstract void SendHeader(CommandHeader header);
 
         public abstract byte[] ReceiveBytes(int bytes);
-        public abstract int ReceiveInt();
-        public abstract byte ReceiveByte();
+        public abstract int ReceiveInt(BinaryReader r);
+        public abstract byte ReceiveByte(BinaryReader r);
         public abstract CommandHeader ReceiveHeader();
     }
 }

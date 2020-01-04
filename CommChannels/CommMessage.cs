@@ -20,14 +20,6 @@ namespace Reno.Comm
             this.message = message;
         }
 
-        public byte[] Header
-        {
-            get
-            {
-                return header.GetBytes;
-            }
-        }
-
         /// <summary>
         /// Returns the message data as a byte[]
         /// </summary>

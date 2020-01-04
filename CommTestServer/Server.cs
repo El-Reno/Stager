@@ -25,6 +25,7 @@ namespace CommTestServer
                 TcpClient client = server.AcceptTcpClient();
                 Console.WriteLine("[*] Accepted client: " + client.Client.RemoteEndPoint.ToString());
                 Console.WriteLine("[*] Creating test command");
+                ClearChannel channel = new ClearChannel(client);
                 // Need command, compression, length of data, and data
                 int command = CommChannel.LS | CommChannel.DEFLATE;
                 string dir = DirectoryTraversal.EnumerateDirectoryStructure(@"C:\Users\kylee\Documents\GitHub\AdventOfCode", "TEXT");
@@ -32,21 +33,11 @@ namespace CommTestServer
                 //char[] data = "Some random text".ToCharArray();
                 char[] data = dir.ToCharArray();
                 int data_len = data.Length;
-                int data_header_len = sizeof(int) + sizeof(int);
-                byte[] data_header = new byte[data_header_len];
-                byte[] data_buffer = new byte[data_len];
-                using (var memStream = new MemoryStream())
-                {
-                    using (var binStream = new BinaryWriter(memStream))
-                    {
-                        binStream.Write(IPAddress.HostToNetworkOrder(command));
-                        binStream.Write(IPAddress.HostToNetworkOrder(data_len));
-                    }
-                    data_buffer = memStream.ToArray();
-                }
-                client.GetStream().Write(data_buffer, 0, data_header_len);
-                //client.GetStream().Write(Encoding.UTF8.GetBytes(data), 0, data_len);
-                client.Close();
+                CommandHeader h = new CommandHeader(command, data_len);
+                Console.WriteLine("Header command {0}", h.Command);
+                Console.WriteLine("Header compression {0}", h.Compression);
+                Console.WriteLine("Header data len {0}", h.DataLength);
+                channel.SendHeader(h);
                 server.Stop();
             }
             catch (ArgumentOutOfRangeException e) { }
