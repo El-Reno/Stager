@@ -64,17 +64,26 @@ namespace Reno.Comm
             br = new BinaryReader(stream);
             bw = new BinaryWriter(stream);
         }
-
+        /// <summary>
+        /// Sends bytes over the tcp connection
+        /// </summary>
+        /// <param name="message">Bytes to send</param>
         public override void SendBytes(byte[] message)
         {
             bw.Write(message);
         }
-
+        /// <summary>
+        /// Sends the byte over the tcp connection
+        /// </summary>
+        /// <param name="b">Byte to send</param>
         public override void SendByte(byte b)
         {
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// Sends the integer over the tcp connection
+        /// </summary>
+        /// <param name="i">Integer to send</param>
         public override void SendInt(int i)
         {
             throw new NotImplementedException();
@@ -92,6 +101,11 @@ namespace Reno.Comm
             bw.Write(IPAddress.HostToNetworkOrder(header.Id));
             bw.Write(IPAddress.HostToNetworkOrder(header.DataLength));
         }
+        /// <summary>
+        /// Receives an amount of bytes from the tcp connection
+        /// </summary>
+        /// <param name="bytes">Amount of bytes to receive</param>
+        /// <returns>Byte array of size bytes</returns>
         public override byte[] ReceiveBytes(int bytes)
         {
             byte[] buffer = new byte[bytes];
@@ -105,12 +119,18 @@ namespace Reno.Comm
             }
             return buffer;
         }
-
+        /// <summary>
+        /// Receive an integer from the tcp connection
+        /// </summary>
+        /// <returns>Integer in host byte order</returns>
         public override int ReceiveInt()
         {
             return IPAddress.NetworkToHostOrder(br.ReadInt32());
         }
-
+        /// <summary>
+        /// Receive a byte from the tcp connection
+        /// </summary>
+        /// <returns>Byte from the tcp connection</returns>
         public override byte ReceiveByte()
         {
             return br.ReadByte();
