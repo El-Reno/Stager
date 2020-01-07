@@ -6,7 +6,7 @@ namespace Reno.Comm
 {
     public class CommMessage
     {
-        CommandHeader header;
+        CommHeader header;
         byte[] message;
 
         /// <summary>
@@ -14,7 +14,7 @@ namespace Reno.Comm
         /// </summary>
         /// <param name="message">Message, char[]</param>
         /// <param name="header">Header for the communications message</param>
-        public CommMessage(CommandHeader header, byte[] message)
+        public CommMessage(CommHeader header, byte[] message)
         {
             this.header = header;
             this.message = message;

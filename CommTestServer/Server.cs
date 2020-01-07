@@ -23,21 +23,34 @@ namespace CommTestServer
                 Console.WriteLine("[*] Starting server");
                 server.Start();
                 TcpClient client = server.AcceptTcpClient();
+                Stream s = client.GetStream();
+                BinaryReader r = new BinaryReader(s);
+                BinaryWriter w = new BinaryWriter(s);
                 Console.WriteLine("[*] Accepted client: " + client.Client.RemoteEndPoint.ToString());
                 Console.WriteLine("[*] Creating test command");
                 ClearChannel channel = new ClearChannel(client);
+                Random rand = new Random((int)DateTimeOffset.Now.ToUnixTimeMilliseconds());
                 // Need command, compression, length of data, and data
-                int command = CommChannel.LS | CommChannel.DEFLATE;
+                byte command = CommChannel.LS;
+                int id = rand.Next();
+                byte compression = CommChannel.DEFLATE;
+                byte hType = 0b0;
+                byte reserved = 0b00001111;
                 string dir = DirectoryTraversal.EnumerateDirectoryStructure(@"C:\Users\kylee\Documents\GitHub\AdventOfCode", "TEXT");
                 Console.WriteLine(dir.Length);
                 //char[] data = "Some random text".ToCharArray();
                 char[] data = dir.ToCharArray();
                 int data_len = data.Length;
-                CommandHeader h = new CommandHeader(command, data_len);
+                CommHeader h = new CommHeader(command, compression, hType, reserved, id, data_len);
                 Console.WriteLine("Header command {0}", h.Command);
                 Console.WriteLine("Header compression {0}", h.Compression);
+                Console.WriteLine("Header Type {0}", h.Type);
+                Console.WriteLine("Header Reserved byte {0}", h.Reserved);
+                Console.WriteLine("Header ID {0}", h.Id);
                 Console.WriteLine("Header data len {0}", h.DataLength);
-                channel.SendHeader(h);
+
+                channel.SendHeader(w, h);
+                channel.SendBytes(w, Encoding.UTF8.GetBytes(data));
                 server.Stop();
             }
             catch (ArgumentOutOfRangeException e) { }

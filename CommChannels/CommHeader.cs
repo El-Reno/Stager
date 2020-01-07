@@ -5,22 +5,28 @@ using System.Text;
 
 namespace Reno.Comm
 {
-    public class CommandHeader
+    public class CommHeader
     {
-        const int HEADER_LENGTH = sizeof(int) * 3;
-        int command = -1;
-        int compression = -1;
-        int data_length = -1;
+        const int HEADER_LENGTH = sizeof(byte) * 4 + sizeof(int) * 2;
+        byte command;
+        byte compression;
+        byte hType;
+        byte reserved;
+        int id;
+        int data_length;  
         /// <summary>
         /// Constructor for the Command header.
         /// </summary>
         /// <param name="command_compression">An integer holding the command and compression types</param>
         /// <param name="data_length">Length of the data attached to the datagram</param>
-        public CommandHeader(int command_compression, int data_length)
+        public CommHeader(byte command, byte compression, byte hType, byte reserved, int id, int data_length)
         {
-            command = command_compression & 0x000F;
-            compression = command_compression & 0x00F0;
+            this.command = command;
+            this.id = id;
+            this.compression = compression;
+            this.hType = hType;
             this.data_length = data_length;
+            this.reserved = reserved;
         }
 
         public static int GetHeaderSize
@@ -39,9 +45,12 @@ namespace Reno.Comm
                 {
                     using (var wr = new BinaryWriter(memStream))
                     {
-                        int command_commpression = (command << 16) | (compression << 0);
-                        wr.Write(command_commpression);
+                        wr.Write(command);
+                        wr.Write(id);
+                        wr.Write(compression);
+                        wr.Write(hType);
                         wr.Write(data_length);
+                        wr.Write(reserved);
                     }
                 }
                 return header;
@@ -50,17 +59,24 @@ namespace Reno.Comm
         /// <summary>
         /// Returns the integer value of the command
         /// </summary>
-        public int Command
+        public byte Command
         {
             get
             {
                 return command;
             }
         }
+        public int Id
+        {
+            get
+            {
+                return id;
+            }
+        }
         /// <summary>
         /// Returns the integer value of the compression algorithm
         /// </summary>
-        public int Compression
+        public byte Compression
         {
             get
             {
@@ -68,11 +84,26 @@ namespace Reno.Comm
             }
         }
 
+        public byte Type
+        {
+            get
+            {
+                return hType;
+            }
+        }
         public int DataLength
         {
             get
             {
                 return data_length;
+            }
+        }
+
+        public int Reserved
+        {
+            get
+            {
+                return reserved;
             }
         }
     }
