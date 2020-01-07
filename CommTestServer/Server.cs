@@ -23,12 +23,12 @@ namespace CommTestServer
                 Console.WriteLine("[*] Starting server");
                 server.Start();
                 TcpClient client = server.AcceptTcpClient();
-                Stream s = client.GetStream();
+                /*Stream s = client.GetStream();
                 BinaryReader r = new BinaryReader(s);
-                BinaryWriter w = new BinaryWriter(s);
+                BinaryWriter w = new BinaryWriter(s);*/
                 Console.WriteLine("[*] Accepted client: " + client.Client.RemoteEndPoint.ToString());
                 Console.WriteLine("[*] Creating test command");
-                ClearChannel channel = new ClearChannel(client);
+                ClearChannel channel = new ClearChannel(client, "GZIP");
                 Random rand = new Random((int)DateTimeOffset.Now.ToUnixTimeMilliseconds());
                 // Need command, compression, length of data, and data
                 byte command = CommChannel.LS;
@@ -40,7 +40,8 @@ namespace CommTestServer
                 Console.WriteLine(dir.Length);
                 //char[] data = "Some random text".ToCharArray();
                 char[] data = dir.ToCharArray();
-                int data_len = data.Length;
+                byte[] compressed = channel.Compress(Encoding.UTF8.GetBytes(data));
+                int data_len = compressed.Length;
                 CommHeader h = new CommHeader(command, compression, hType, reserved, id, data_len);
                 Console.WriteLine("Header command {0}", h.Command);
                 Console.WriteLine("Header compression {0}", h.Compression);
@@ -49,8 +50,9 @@ namespace CommTestServer
                 Console.WriteLine("Header ID {0}", h.Id);
                 Console.WriteLine("Header data len {0}", h.DataLength);
 
-                channel.SendHeader(w, h);
-                channel.SendBytes(w, Encoding.UTF8.GetBytes(data));
+                channel.SendHeader(h);
+                //channel.SendBytes(Encoding.UTF8.GetBytes(data));
+                channel.SendBytes(compressed);
                 server.Stop();
             }
             catch (ArgumentOutOfRangeException e) { }

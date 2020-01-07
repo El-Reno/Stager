@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using Reno.Comm;
 using Reno.Stages;
+using System.IO.Compression;
 
 namespace CommTestClient
 {
@@ -15,13 +16,10 @@ namespace CommTestClient
     {
         static void Main(string[] args)
         {
-            ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8000, "NONE");
-            TcpClient client = new TcpClient("127.0.0.1", 8000);
-            Stream s = client.GetStream();
-            BinaryReader r = new BinaryReader(s);
-            BinaryWriter w = new BinaryWriter(s);
-            //CommMessage msg = clearChannel.ReceiveMessage();
-            CommHeader header = clearChannel.ReceiveHeader(r);
+            ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8000, "GZIP");
+            //TcpClient client = new TcpClient("127.0.0.1", 8000);
+            //ClearChannel clearChannel = new ClearChannel(client);
+            CommHeader header = clearChannel.ReceiveHeader();
 
             Console.WriteLine("[*] Command {0}", header.Command); 
             Console.WriteLine("[*] Compression {0}", header.Compression);
@@ -32,19 +30,31 @@ namespace CommTestClient
             Console.WriteLine("[*] Outputing data");
             int read = 0;
             int chunk = 1024;
-            while(read < header.DataLength)
+            byte[] message = new byte[header.DataLength];
+            using (var m = new MemoryStream(message))
             {
-                if(header.DataLength - read < chunk)
+                using (var b = new BinaryWriter(m))
                 {
-                    Console.Out.WriteLine(Encoding.UTF8.GetString(clearChannel.ReceiveBytes(r, header.DataLength - read)));
-                    read += header.DataLength - read;
-                }
-                else
-                {
-                    Console.Out.WriteLine(Encoding.UTF8.GetString(clearChannel.ReceiveBytes(r, chunk)));
-                    read += 1024;
+                    while (read < header.DataLength)
+                    {
+                        if (header.DataLength - read < chunk)
+                        {
+                            //Console.Out.WriteLine(Encoding.UTF8.GetString(clearChannel.ReceiveBytes(header.DataLength - read)));
+                            b.Write(clearChannel.ReceiveBytes(header.DataLength - read));
+                            read += header.DataLength - read;
+                        }
+                        else
+                        {
+                            //Console.Out.WriteLine(Encoding.UTF8.GetString(clearChannel.ReceiveBytes(chunk)));
+                            b.Write(clearChannel.ReceiveBytes(chunk));
+                            read += 1024;
+                        }
+                    }
                 }
             }
+            Console.WriteLine("Decompressing");
+            byte[] decompressed = clearChannel.Decompress(message);
+            Console.WriteLine(Encoding.UTF8.GetString(decompressed));
             Console.ReadLine();
         }
     }

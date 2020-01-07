@@ -24,14 +24,16 @@ namespace Reno.Comm
 
         public const int CHUNK_SIZE = 1024;
 
-        public abstract void SendBytes(BinaryWriter w, byte[] message);
-        public abstract void SendByte(BinaryWriter w, byte b);
-        public abstract void SendInt(BinaryWriter w, int i);
-        public abstract void SendHeader(BinaryWriter w, CommHeader header);
+        public abstract void SendBytes(byte[] message);
+        public abstract void SendByte(byte b);
+        public abstract void SendInt(int i);
+        public abstract void SendHeader(CommHeader header);
 
-        public abstract byte[] ReceiveBytes(BinaryReader r, int bytes);
-        public abstract int ReceiveInt(BinaryReader r);
-        public abstract byte ReceiveByte(BinaryReader r);
-        public abstract CommHeader ReceiveHeader(BinaryReader r);
+        public abstract byte[] ReceiveBytes(int bytes);
+        public abstract int ReceiveInt();
+        public abstract byte ReceiveByte();
+        public abstract byte[] Compress(byte[] message);
+        public abstract byte[] Decompress(byte[] message);
+        public abstract CommHeader ReceiveHeader();
     }
 }
