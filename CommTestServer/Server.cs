@@ -34,7 +34,7 @@ namespace CommTestServer
                 byte command = CommChannel.LS;
                 int id = rand.Next();
                 byte compression = CommChannel.DEFLATE;
-                byte hType = 0b0;
+                byte hType = CommChannel.COMMAND;
                 byte reserved = 0b00001111;
                 string dir = DirectoryTraversal.EnumerateDirectoryStructure(@"C:\Users\kylee\Documents\GitHub\AdventOfCode", "TEXT");
                 Console.WriteLine(dir.Length);
