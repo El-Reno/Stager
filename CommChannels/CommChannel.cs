@@ -8,19 +8,23 @@ namespace Reno.Comm
 {
     public abstract class CommChannel
     {
-        public const int PWD = 0b00000000;
-        public const int LS = 0b00000001;
-        public const int CD = 0b00000010;
-        public const int PS = 0b00000011;
-        public const int NETSTAT = 0b00000100;
-        public const int DOWNLOAD = 0b00000101;
-        public const int UPLOAD = 0b00000110;
-        public const int DELETE = 0b00000111;
-        public const int EXIT = 0b00001000;
-
-        public const int NONE = 0b10000000;
-        public const int GZIP = 0b01110000;
-        public const int DEFLATE = 0b01100000;
+        // Commands
+        public const byte PWD = 0b00000000;
+        public const byte LS = 0b00000001;
+        public const byte CD = 0b00000010;
+        public const byte PS = 0b00000011;
+        public const byte NETSTAT = 0b00000100;
+        public const byte DOWNLOAD = 0b00000101;
+        public const byte UPLOAD = 0b00000110;
+        public const byte DELETE = 0b00000111;
+        public const byte EXIT = 0b00001000;
+        // Compression 
+        public const byte NONE = 0b10000000;
+        public const byte GZIP = 0b01110000;
+        public const byte DEFLATE = 0b01100000;
+        // Message type
+        public const byte COMMAND = 0b00000000;
+        public const byte RESPONSE = 0b00000001;
 
         public const int CHUNK_SIZE = 1024;
 
