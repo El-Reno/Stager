@@ -78,6 +78,7 @@ namespace Reno.Stages
                 }
             }
         }
+
         /// <summary>
         /// Helper function to print out the directory listing
         /// </summary>
@@ -107,6 +108,7 @@ namespace Reno.Stages
                 channel.SendBytes(bytes);
             }
         }
+
         /// <summary>
         /// Helper function to print out the present working directory
         /// </summary>
@@ -120,6 +122,7 @@ namespace Reno.Stages
             channel.SendHeader(pwdHeader);
             channel.SendBytes(msg);
         }
+
         /// <summary>
         /// Helper function to change the current working directory
         /// </summary>
