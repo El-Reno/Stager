@@ -17,7 +17,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommTestServer", "CommTestS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommTestClient", "CommTestClient\CommTestClient.csproj", "{677B732B-4081-48C5-A696-2058262A0EAC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerminalServer", "TerminalServer\TerminalServer.csproj", "{9CADA016-476A-4CE2-9667-65F545736F11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TerminalServer", "TerminalServer\TerminalServer.csproj", "{9CADA016-476A-4CE2-9667-65F545736F11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{69E9635F-37E4-47D7-B702-4B7C871CDF67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{9CADA016-476A-4CE2-9667-65F545736F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CADA016-476A-4CE2-9667-65F545736F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CADA016-476A-4CE2-9667-65F545736F11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69E9635F-37E4-47D7-B702-4B7C871CDF67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69E9635F-37E4-47D7-B702-4B7C871CDF67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69E9635F-37E4-47D7-B702-4B7C871CDF67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69E9635F-37E4-47D7-B702-4B7C871CDF67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

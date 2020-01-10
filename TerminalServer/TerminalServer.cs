@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Reno.Comm;
+using Reno.Utilities;
 
 namespace TerminalServer
 {
@@ -10,13 +12,27 @@ namespace TerminalServer
         CommChannel channel;
         byte compression;
         string prompt;
+        /// <summary>
+        /// Creates a new TerminalServer for the terminal program.
+        /// The operator interacts with the server and the server interacts with the client machine
+        /// </summary>
+        /// <param name="channel">Comm channel for client/server communication</param>
+        /// <param name="compression">Compression method - GZIP, DEFLATE, or NONE</param>
         public TerminalServer(CommChannel channel, byte compression)
         {
             this.channel = channel;
             this.compression = compression;
             prompt = Environment.MachineName + ">";
         }
-
+        /// <summary>
+        /// Starts the terminal server loop. This method reads a command from the command line and then parses the result.
+        /// The resulting command and arguments are then translated into commands to be sent over the wire.
+        /// Finally, it waits for a response and outputs the results
+        /// 
+        /// TODO:
+        /// Properly parse commands with a method other than string.split
+        /// Track sessions - long term
+        /// </summary>
         public void Start()
         {
             Random r = new Random();
@@ -29,7 +45,7 @@ namespace TerminalServer
                 {
                     Console.WriteLine("TAB");
                 }
-                string[] commandString = command.Split(" ");
+                string[] commandString = Utility.ParseCommand(command);
                 switch (commandString[0])
                 {
                     case "EXIT":
@@ -83,6 +99,15 @@ namespace TerminalServer
                 }
             }
         }
+        /// <summary>
+        /// Helper function for listing of a directory.
+        /// This function is called when the LS command is given
+        /// </summary>
+        /// <param name="commandString">
+        /// Properly parsed command and arguments.
+        /// Example: ls C:\Users
+        /// </param>
+        /// <param name="r">Random object to create a session id</param>
         private void ListDirectory(string[] commandString, Random r)
         {
             // Check for a directory argument
@@ -100,6 +125,15 @@ namespace TerminalServer
                 channel.SendHeader(c);
             }
         }
+        /// <summary>
+        /// Helper function for changing directories.
+        /// This function is called when the CD command is given
+        /// </summary>
+        /// <param name="commandString">
+        /// Properly parsed command and arguments.
+        /// Example: cd C:\Users
+        /// </param>
+        /// <param name="r">Random object to create a session id</param>
         private void ChangeDirectory(string[] commandString, Random r)
         {
             // Check for a directory argument
@@ -117,14 +151,15 @@ namespace TerminalServer
                 channel.SendHeader(c);
             }
         }
+        /// <summary>
+        /// Helper function to print the present working directory.
+        /// This function is called when the PWD command is given
+        /// </summary>
+        /// <param name="r">Random object to create a session id</param>
         private void PresentWorkingDirectory(Random r)
         {
             CommHeader lowPWDHeader = CreateHeader(CommChannel.PWD, compression, CommChannel.COMMAND, r.Next(), 0);
             channel.SendHeader(lowPWDHeader);
-        }
-        private string[] ParseCommand(string command)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>

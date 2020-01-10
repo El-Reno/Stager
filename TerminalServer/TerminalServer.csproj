@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CommChannels\CommChannels.csproj" />
+    <ProjectReference Include="..\Utilities\Utilities.csproj" />
   </ItemGroup>
 
 </Project>
