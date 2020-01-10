@@ -22,6 +22,7 @@ namespace Reno.Stages
         {
             this.channel = channel;
         }
+
         /// <summary>
         /// Main loop for the terminal. Loop continues to listen to commands from the server until told to disconnect
         /// </summary>
