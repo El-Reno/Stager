@@ -11,6 +11,7 @@ namespace TerminalServer
     {
         CommChannel channel;
         byte compression;
+        bool isCompressed;
         string prompt;
         /// <summary>
         /// Creates a new TerminalServer for the terminal program.
@@ -22,6 +23,14 @@ namespace TerminalServer
         {
             this.channel = channel;
             this.compression = compression;
+            if(compression == 0)
+            {
+                isCompressed = false;
+            }
+            else
+            {
+                isCompressed = true;
+            }
             prompt = Environment.MachineName + ">";
         }
         /// <summary>
@@ -77,14 +86,14 @@ namespace TerminalServer
                         ChangeDirectory(commandString, r);
                         break;
                     default:
-                        break;
+                        continue;
                 }
                 if (run)
                 {
                     CommHeader responseHeader = channel.ReceiveHeader();
                     //byte[] response = channel.ReceiveBytes(responseHeader.DataLength);
                     string sResponse = "";
-                    if (responseHeader.Compression == CommChannel.GZIP)
+                    if (isCompressed)
                     {
                         byte[] response = channel.Decompress(channel.ReceiveBytes(responseHeader.DataLength));
                         sResponse = Encoding.UTF8.GetString(response);
@@ -114,10 +123,21 @@ namespace TerminalServer
             if (commandString.Length > 1)
             {
                 string dir = commandString[1];
-                int len = dir.Length;
-                CommHeader c = CreateHeader(CommChannel.LS, compression, CommChannel.COMMAND, r.Next(), len);
-                channel.SendHeader(c);
-                channel.SendBytes(Encoding.UTF8.GetBytes(dir));
+                if (!isCompressed)
+                {
+                    int len = dir.Length;
+                    CommHeader c = CreateHeader(CommChannel.LS, compression, CommChannel.COMMAND, r.Next(), len);
+                    channel.SendHeader(c);
+                    channel.SendBytes(Encoding.UTF8.GetBytes(dir));
+                }
+                else
+                {
+                    byte[] compressed = channel.Compress(Encoding.UTF8.GetBytes(dir));
+                    int len = compressed.Length;
+                    CommHeader c = CreateHeader(CommChannel.LS, compression, CommChannel.COMMAND, r.Next(), len);
+                    channel.SendHeader(c);
+                    channel.SendBytes(compressed);
+                }
             }
             else
             {
@@ -140,10 +160,21 @@ namespace TerminalServer
             if (commandString.Length > 1)
             {
                 string dir = commandString[1];
-                int len = dir.Length;
-                CommHeader c = CreateHeader(CommChannel.CD, compression, CommChannel.COMMAND, r.Next(), len);
-                channel.SendHeader(c);
-                channel.SendBytes(Encoding.UTF8.GetBytes(dir));
+                if (!isCompressed)
+                {
+                    int len = dir.Length;
+                    CommHeader c = CreateHeader(CommChannel.CD, compression, CommChannel.COMMAND, r.Next(), len);
+                    channel.SendHeader(c);
+                    channel.SendBytes(Encoding.UTF8.GetBytes(dir));
+                }
+                else
+                {
+                    byte[] compressed = channel.Compress(Encoding.UTF8.GetBytes(dir));
+                    int len = compressed.Length;
+                    CommHeader c = CreateHeader(CommChannel.CD, compression, CommChannel.COMMAND, r.Next(), len);
+                    channel.SendHeader(c);
+                    channel.SendBytes(compressed);
+                }
             }
             else
             {

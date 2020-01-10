@@ -224,5 +224,10 @@ namespace Reno.Comm
                 return m.ToArray();
             }
         }
+
+        public override bool IsCompressed()
+        {
+            return !compression.Equals("NONE");
+        }
     }
 }
