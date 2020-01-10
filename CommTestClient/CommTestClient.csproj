@@ -58,6 +58,10 @@
       <Project>{b44a8e91-7e2b-498b-9658-d72274e8cc6d}</Project>
       <Name>DirectoryTraversal</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Terminal\Terminal.csproj">
+      <Project>{016d241c-66c6-48e5-8c9c-4af64c57ff4c}</Project>
+      <Name>Terminal</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

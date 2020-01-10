@@ -16,7 +16,7 @@ namespace CommTestClient
     {
         static void Main(string[] args)
         {
-            ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8000, "GZIP");
+            /*ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8000, "GZIP");
             //TcpClient client = new TcpClient("127.0.0.1", 8000);
             //ClearChannel clearChannel = new ClearChannel(client);
             CommHeader header = clearChannel.ReceiveHeader();
@@ -56,6 +56,11 @@ namespace CommTestClient
             byte[] decompressed = clearChannel.Decompress(message);
             Console.WriteLine(Encoding.UTF8.GetString(decompressed));
             Console.ReadLine();
+            */
+            ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8888, "NONE");
+            Terminal terminal = new Terminal(clearChannel);
+            terminal.Execute();
+            
         }
     }
 }
