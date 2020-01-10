@@ -5,6 +5,10 @@ using Reno.Comm;
 
 namespace Reno.Stages
 {
+    /// <summary>
+    /// The Terminal class is meant to run on a target machine and allow for interaction with the TerminalServer.
+    /// It supports the following basic commands: ls, cd, pwd, delete, upload, download, netstat, ps, and exit.
+    /// </summary>
     public class Terminal
     {
         CommChannel channel;
