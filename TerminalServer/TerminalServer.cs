@@ -7,6 +7,10 @@ using Reno.Utilities;
 
 namespace TerminalServer
 {
+    /// <summary>
+    /// The TerminalServer allows an operator to issue commands to a machine running the Terminal.
+    /// The TerminalServer provides an extremely basic command line for issueing commands.
+    /// </summary>
     class TerminalServer
     {
         CommChannel channel;
