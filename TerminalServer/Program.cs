@@ -14,7 +14,7 @@ namespace TerminalServer
             listener.Start();
             Console.WriteLine("[*] Starting server");
             TcpClient client = listener.AcceptTcpClient();
-            CommChannel channel = new ClearChannel(client, "GZIP");
+            CommChannel channel = new ClearChannel(client, "NONE");
             TerminalServer server = new TerminalServer(channel, CommChannel.GZIP);
             server.Start();
         }

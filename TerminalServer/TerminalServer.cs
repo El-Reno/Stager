@@ -85,6 +85,24 @@ namespace TerminalServer
                     case "cd":
                         ChangeDirectory(commandString, r);
                         break;
+                    case "DELETE":
+                        DeleteFilesysObject(commandString, r);
+                        break;
+                    case "delete":
+                        DeleteFilesysObject(commandString, r);
+                        break;
+                    case "PS":
+                        ProcessList(r);
+                        break;
+                    case "ps":
+                        ProcessList(r);
+                        break;
+                    case "NETSTAT":
+                        Netstat(r);
+                        break;
+                    case "netstat":
+                        Netstat(r);
+                        break;
                     default:
                         continue;
                 }
@@ -107,6 +125,24 @@ namespace TerminalServer
                     Console.WriteLine(sResponse);
                 }
             }
+        }
+        /// <summary>
+        /// Helper function to get the network connections
+        /// </summary>
+        /// <param name="r">Random object to create a session id</param>
+        private void Netstat(Random r)
+        {
+            CommHeader netstatHeader = CreateHeader(CommChannel.NETSTAT, compression, CommChannel.COMMAND, r.Next(), 0);
+            channel.SendHeader(netstatHeader);
+        }
+        /// <summary>
+        /// Helper function to get the list of processes
+        /// </summary>
+        /// <param name="r">Random object to create a session id</param>
+        private void ProcessList(Random r)
+        {
+            CommHeader processListHeader = CreateHeader(CommChannel.PS, compression, CommChannel.COMMAND, r.Next(), 0);
+            channel.SendHeader(processListHeader);
         }
         /// <summary>
         /// Helper function for listing of a directory.
@@ -191,6 +227,27 @@ namespace TerminalServer
         {
             CommHeader lowPWDHeader = CreateHeader(CommChannel.PWD, compression, CommChannel.COMMAND, r.Next(), 0);
             channel.SendHeader(lowPWDHeader);
+        }
+        /// <summary>
+        /// Helper function to delete the file or directory
+        /// Will error if permissions issues or if the directory is not empty
+        /// </summary>
+        /// <param name="commandString">
+        /// Properly parsed command argument
+        /// Example: delete test.txt
+        /// </param>
+        /// <param name="r">Random object to create a session id</param>
+        private void DeleteFilesysObject(string[] commandString, Random r)
+        {
+            if(commandString.Length > 1)
+            {
+                string obj = commandString[1];
+                byte[] message = channel.Compress(Encoding.UTF8.GetBytes(obj));
+                int len = message.Length;
+                CommHeader c = CreateHeader(CommChannel.DELETE, compression, CommChannel.COMMAND, r.Next(), len);
+                channel.SendHeader(c);
+                channel.SendBytes(message);
+            }
         }
 
         /// <summary>
