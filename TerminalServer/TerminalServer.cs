@@ -113,7 +113,6 @@ namespace TerminalServer
                 if (run)
                 {
                     CommHeader responseHeader = channel.ReceiveHeader();
-                    //byte[] response = channel.ReceiveBytes(responseHeader.DataLength);
                     string sResponse = "";
                     if (isCompressed)
                     {
