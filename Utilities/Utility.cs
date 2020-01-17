@@ -20,7 +20,7 @@ namespace Reno.Utilities
             for(int i = 0; i < commandLength; i++)
             {
                 // The command is always first, scan until there is a space
-                if (Char.IsLetter(commandString[i]) || (commandString[i] == ' ' && quotes) || (commandString[i] == '\\') || (commandString[i] == ':'))
+                if (Char.IsLetter(commandString[i]) || (commandString[i] == ' ' && quotes) || (commandString[i] == '\\') || (commandString[i] == ':') || (commandString[i] == '.'))
                 {
                     wordStarted = true;
                     s.Append(commandString[i]);
