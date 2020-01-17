@@ -16,7 +16,7 @@ namespace TerminalServer
         CommChannel channel;
         byte compression;
         bool isCompressed;
-        string prompt;
+        string prompt, localPWD;
         /// <summary>
         /// Creates a new TerminalServer for the terminal program.
         /// The operator interacts with the server and the server interacts with the client machine
@@ -36,6 +36,7 @@ namespace TerminalServer
                 isCompressed = true;
             }
             prompt = Environment.MachineName + ">";
+            localPWD = Directory.GetCurrentDirectory();
         }
         /// <summary>
         /// Starts the terminal server loop. This method reads a command from the command line and then parses the result.
@@ -50,6 +51,7 @@ namespace TerminalServer
         {
             Random r = new Random();
             bool run = true;
+            bool expectReturn = false;
             while (run)
             {
                 Console.Write(prompt);
@@ -73,44 +75,92 @@ namespace TerminalServer
                         break;
                     case "LS":
                         ListDirectory(commandString, r);
+                        expectReturn = true;
                         break;
                     case "ls":
                         ListDirectory(commandString, r);
+                        expectReturn = true;
                         break;
                     case "PWD":
                         PresentWorkingDirectory(r);
+                        expectReturn = true;
                         break;
                     case "pwd":
                         PresentWorkingDirectory(r);
+                        expectReturn = true;
                         break;
                     case "CD":
                         ChangeDirectory(commandString, r);
+                        expectReturn = true;
                         break;
                     case "cd":
                         ChangeDirectory(commandString, r);
+                        expectReturn = true;
                         break;
                     case "DELETE":
                         DeleteFilesysObject(commandString, r);
+                        expectReturn = true;
                         break;
                     case "delete":
                         DeleteFilesysObject(commandString, r);
+                        expectReturn = true;
                         break;
                     case "PS":
                         ProcessList(r);
+                        expectReturn = true;
                         break;
                     case "ps":
                         ProcessList(r);
+                        expectReturn = true;
                         break;
                     case "NETSTAT":
                         Netstat(r);
+                        expectReturn = true;
                         break;
                     case "netstat":
                         Netstat(r);
+                        expectReturn = true;
+                        break;
+                    case "UPLOAD":
+
+                        expectReturn = true;
+                        break;
+                    case "upload":
+
+                        expectReturn = true;
+                        break;
+                    case "DOWNLOAD":
+
+                        expectReturn = true;
+                        break;
+                    case "download":
+
+                        expectReturn = true;
+                        break;
+                    case "LPWD":
+
+                        break;
+                    case "lpwd":
+                        Console.WriteLine(localPWD);
+                        break;
+                    case "LCD":
+                        if (Directory.Exists(commandString[1]))
+                        {
+                            localPWD = commandString[1];
+                        }
+                        Console.WriteLine(localPWD);
+                        break;
+                    case "lcd":
+                        if (Directory.Exists(commandString[1]))
+                        {
+                            localPWD = commandString[1];
+                        }
+                        Console.WriteLine(localPWD);
                         break;
                     default:
                         continue;
                 }
-                if (run)
+                if (run && expectReturn)
                 {
                     CommHeader responseHeader = channel.ReceiveHeader();
                     string sResponse = "";
@@ -127,7 +177,18 @@ namespace TerminalServer
 
                     Console.WriteLine(sResponse);
                 }
+                expectReturn = false;
             }
+        }
+        
+        private void UploadFile(FileInfo file, Random r)
+        {
+
+        }
+
+        private void DownloadFile(string file, Random r)
+        {
+
         }
         /// <summary>
         /// Helper function to get the network connections
