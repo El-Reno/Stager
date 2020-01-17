@@ -57,7 +57,7 @@ namespace CommTestClient
             Console.WriteLine(Encoding.UTF8.GetString(decompressed));
             Console.ReadLine();
             */
-            ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8888, "GZIP");
+            ClearChannel clearChannel = new ClearChannel("127.0.0.1", 8888, "NONE");
             Terminal terminal = new Terminal(clearChannel);
             terminal.Execute();
             
