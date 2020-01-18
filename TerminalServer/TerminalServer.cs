@@ -192,9 +192,9 @@ namespace TerminalServer
                 // Make sure the provided file is just the filename and not the path
                 string f = Path.GetFileName(file);
                 Console.WriteLine(localPWD + "\\" + f);
-                using (BinaryWriter wr = new BinaryWriter(File.OpenWrite(localPWD + "\\" + f)))
+                using (BinaryWriter fs = new BinaryWriter(File.OpenWrite(localPWD + "\\" + f)))
                 {
-                    wr.Write(fileBytes);
+                    fs.Write(fileBytes, 0, fileBytes.Length);
                 }
             }
             else if(response.Type == CommChannel.ERROR)

