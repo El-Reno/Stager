@@ -40,6 +40,7 @@ namespace Reno.Stages
                 {
                     case CommChannel.EXIT:
                         run = false;
+                        channel.Close();
                         break;
                     case CommChannel.LS:
                         if (header.DataLength == 0)

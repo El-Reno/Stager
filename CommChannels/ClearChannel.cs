@@ -224,7 +224,23 @@ namespace Reno.Comm
                 return m.ToArray();
             }
         }
-
+        /// <summary>
+        /// Closes the channel
+        /// </summary>
+        public override void Close()
+        {
+            try
+            {
+                bw.Close();
+                br.Close();
+                stream.Close();
+                tcpClient.Close();
+            }
+            catch(IOException e)
+            {
+                Console.WriteLine("Error closing connection: {0}", e.Message);
+            }
+        }
         public override bool IsCompressed()
         {
             return !compression.Equals("NONE");
