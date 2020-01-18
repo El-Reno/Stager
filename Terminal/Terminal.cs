@@ -146,7 +146,12 @@ namespace Reno.Stages
                 }
             }
         }
-
+        /// <summary>
+        /// Helper function to get the full path of the filesystem object(file or directory) supplied
+        /// This way, anything sent as a relative path is converted to fully qualified and used
+        /// </summary>
+        /// <param name="s">File system object to check</param>
+        /// <returns>Fully quallified path</returns>
         private string GetFullPath(string s)
         {
             string path = "";
@@ -155,6 +160,10 @@ namespace Reno.Stages
             if (!fullPath.IsMatch(s))
             {
                 path = Path.Combine(pwd, Path.GetFileName(s));
+            }
+            else
+            {
+                path = s;
             }
             return path;
         }
