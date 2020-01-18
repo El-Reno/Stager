@@ -25,6 +25,7 @@ namespace Reno.Comm
         // Message type
         public const byte COMMAND = 0b00000000;
         public const byte RESPONSE = 0b00000001;
+        public const byte ERROR = 0b00000010;
 
         public const int CHUNK_SIZE = 1024;
 

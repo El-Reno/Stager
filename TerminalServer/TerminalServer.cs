@@ -131,11 +131,11 @@ namespace TerminalServer
                         break;
                     case "DOWNLOAD":
 
-                        expectReturn = true;
+                        expectReturn = false;   // Helper function handles the return data
                         break;
                     case "download":
-
-                        expectReturn = true;
+                        DownloadFile(commandString[1], r);
+                        expectReturn = false; // Helper function handles the return data
                         break;
                     case "LPWD":
 
@@ -164,17 +164,8 @@ namespace TerminalServer
                 {
                     CommHeader responseHeader = channel.ReceiveHeader();
                     string sResponse = "";
-                    if (isCompressed)
-                    {
-                        byte[] response = channel.Decompress(channel.ReceiveBytes(responseHeader.DataLength));
-                        sResponse = Encoding.UTF8.GetString(response);
-                    }
-                    else
-                    {
-                        byte[] response = channel.ReceiveBytes(responseHeader.DataLength);
-                        sResponse = Encoding.UTF8.GetString(response);
-                    }
-
+                    byte[] response = channel.Decompress(channel.ReceiveBytes(responseHeader.DataLength));
+                    sResponse = Encoding.UTF8.GetString(response);
                     Console.WriteLine(sResponse);
                 }
                 expectReturn = false;
@@ -188,7 +179,28 @@ namespace TerminalServer
 
         private void DownloadFile(string file, Random r)
         {
+            // Transmit the command
+            byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(file));
+            CommHeader downloadHeader = CreateHeader(CommChannel.DOWNLOAD, compression, CommChannel.COMMAND, r.Next(), bytes.Length);
+            channel.SendHeader(downloadHeader);
+            channel.SendBytes(bytes);
 
+            // Receive the file
+            CommHeader response = channel.ReceiveHeader();
+            if (response.Type == CommChannel.RESPONSE) {
+                byte[] fileBytes = channel.Decompress(channel.ReceiveBytes(response.DataLength));
+                // Make sure the provided file is just the filename and not the path
+                string f = Path.GetFileName(file);
+                Console.WriteLine(localPWD + "\\" + f);
+                using (BinaryWriter wr = new BinaryWriter(File.OpenWrite(localPWD + "\\" + f)))
+                {
+                    wr.Write(fileBytes);
+                }
+            }
+            else if(response.Type == CommChannel.ERROR)
+            {
+                Console.WriteLine("Error downloading file");
+            }
         }
         /// <summary>
         /// Helper function to get the network connections

