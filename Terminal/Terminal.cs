@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Net;
 using Reno.Comm;
 
 namespace Reno.Stages
@@ -91,10 +92,43 @@ namespace Reno.Stages
                         // Get the file and transmit
                         if (File.Exists(fileDownload))
                         {
-                            byte[] downloadBytes = File.ReadAllBytes(fileDownload);
-                            CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, downloadBytes.Length);
+                            FileInfo fileInfo = new FileInfo(fileDownload);
+                            long size = fileInfo.Length;
+                            long bytesSent = 0;
+                            int read = 0;
+                            byte[] bytes = new byte[CommChannel.CHUNK_SIZE];
+                            CommHeader h = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, (int)size);    // Change the (int)size to eventually long
                             channel.SendHeader(h);
-                            channel.SendBytes(channel.Compress(downloadBytes));
+                            // Chunk the file and send
+                            while (bytesSent < size)
+                            {
+                                read = 0;
+                                try
+                                {
+                                    using (FileStream fileStream = new FileStream(fileDownload, FileMode.Open))
+                                    {
+                                        if (size - bytesSent < CommChannel.CHUNK_SIZE)
+                                        {
+                                            byte[] b = new byte[size - bytesSent];
+                                            fileStream.Seek(bytesSent, SeekOrigin.Current);
+                                            read = fileStream.Read(b, 0, (int)(size - bytesSent));
+                                            bytesSent += read;
+                                            channel.SendBytes(b);
+                                        }
+                                        else
+                                        {
+                                            fileStream.Seek(bytesSent, SeekOrigin.Current);
+                                            read = fileStream.Read(bytes, 0, CommChannel.CHUNK_SIZE);
+                                            bytesSent += read;
+                                            channel.SendBytes(bytes);
+                                        }
+                                    }
+                                }
+                                catch(Exception e)
+                                {
+
+                                }
+                            }
                         }
                         // Send error if the file doesnt exist
                         else
