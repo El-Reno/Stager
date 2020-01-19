@@ -66,6 +66,9 @@ namespace Reno.Comm
                 return command;
             }
         }
+        /// <summary>
+        /// Returns the id assigned to this message
+        /// </summary>
         public int Id
         {
             get
@@ -83,7 +86,9 @@ namespace Reno.Comm
                 return compression;
             }
         }
-
+        /// <summary>
+        /// Returns the type of message (COMMAND, RESPONSE, ERROR, tbd others)
+        /// </summary>
         public byte Type
         {
             get
@@ -91,6 +96,9 @@ namespace Reno.Comm
                 return hType;
             }
         }
+        /// <summary>
+        /// Length of expected data
+        /// </summary>
         public int DataLength
         {
             get
@@ -98,7 +106,9 @@ namespace Reno.Comm
                 return data_length;
             }
         }
-
+        /// <summary>
+        /// Returns the reserved section
+        /// </summary>
         public int Reserved
         {
             get
