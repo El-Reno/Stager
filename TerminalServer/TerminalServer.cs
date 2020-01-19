@@ -67,11 +67,13 @@ namespace TerminalServer
                         run = false;
                         CommHeader a = CreateHeader(CommChannel.EXIT, compression, CommChannel.COMMAND, r.Next(), 0);
                         channel.SendHeader(a);
+                        channel.Close();
                         break;
                     case "exit":
                         run = false;
                         CommHeader b = CreateHeader(CommChannel.EXIT, compression, CommChannel.COMMAND, r.Next(), 0);
                         channel.SendHeader(b);
+                        channel.Close();
                         break;
                     case "LS":
                         ListDirectory(commandString, r);
