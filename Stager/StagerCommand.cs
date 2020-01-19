@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Reflection;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Net;
 
@@ -24,7 +21,9 @@ namespace Stager
         {
             uris = new List<Uri>();
         }
-
+        /// <summary>
+        /// Gets/Sets the HttpStatusCode for the connection to the C2
+        /// </summary>
         public HttpStatusCode HttpStatusCode
         {
             get

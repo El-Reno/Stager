@@ -139,9 +139,13 @@ namespace Reno.Stages
                             }
                         }
                     }
+                    catch(IOException ioEx)
+                    {
+                        Console.WriteLine("Error with filestream for download: {0}", ioEx.Message);
+                    }
                     catch (Exception e)
                     {
-
+                        Console.WriteLine("Error during download: {0}", e.Message);
                     }
                 }
             }
