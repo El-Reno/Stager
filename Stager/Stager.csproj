@@ -54,5 +54,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommChannels\CommChannels.csproj">
+      <Project>{0b2ba472-9952-42f1-acef-109b4cee494e}</Project>
+      <Name>CommChannels</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
