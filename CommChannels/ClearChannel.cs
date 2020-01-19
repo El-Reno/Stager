@@ -37,17 +37,13 @@ namespace Reno.Comm
                 br = new BinaryReader(stream);
                 bw = new BinaryWriter(stream);
             }
-            catch(ArgumentNullException argNull)
-            {
-
-            }
-            catch(ArgumentOutOfRangeException argRange)
-            {
-
-            }
             catch(SocketException e)
             {
-
+                Console.WriteLine("Error opening socket: {0}", e.Message);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine("Error occurred in ClearChannel constructor: {0}", ex.Message);
             }
             
         }
@@ -58,11 +54,22 @@ namespace Reno.Comm
         /// <param name="client">TcpClient for client/server communication</param>
         public ClearChannel(TcpClient client, string compression)
         {
-            tcpClient = client;
-            this.compression = compression.ToUpper();
-            stream = client.GetStream();
-            br = new BinaryReader(stream);
-            bw = new BinaryWriter(stream);
+            try
+            {
+                tcpClient = client;
+                this.compression = compression.ToUpper();
+                stream = client.GetStream();
+                br = new BinaryReader(stream);
+                bw = new BinaryWriter(stream);
+            }
+            catch (SocketException e)
+            {
+                Console.WriteLine("Error opening socket: {0}", e.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error occurred in ClearChannel constructor: {0}", ex.Message);
+            }
         }
         /// <summary>
         /// Sends bytes over the tcp connection
@@ -202,7 +209,8 @@ namespace Reno.Comm
         {
             using (var m = new MemoryStream())  // Empty MemoryStream to write decompressed data to
             {
-                using (var msg = new MemoryStream(message)) {
+                using (var msg = new MemoryStream(message))
+                {
                     switch (compression)
                     {
                         case "DEFLATE":
@@ -222,7 +230,7 @@ namespace Reno.Comm
                     }
                 }
                 return m.ToArray();
-            }
+            }           
         }
         /// <summary>
         /// Closes the channel
@@ -240,10 +248,6 @@ namespace Reno.Comm
             {
                 Console.WriteLine("Error closing connection: {0}", e.Message);
             }
-        }
-        public override bool IsCompressed()
-        {
-            return !compression.Equals("NONE");
         }
     }
 }
