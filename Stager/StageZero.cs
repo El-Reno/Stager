@@ -100,7 +100,13 @@ namespace Stager
                 else if (type.FullName.Equals("Reno.Stages.DirectoryTraversal"))
                 {
                     Assembly a = Assembly.Load(assembly);
-
+                    var traversal = Activator.CreateInstance(type, null);
+                    var execute = type.GetMethod("EnumerateDirectoryStructure");
+                    string dir = arguments["dir"];
+                    string format = arguments["format"];
+                    object[] o = { dir, format };
+                    object output = execute.Invoke(traversal, o);
+                    Console.WriteLine(output);
                 }
                 else
                 {
