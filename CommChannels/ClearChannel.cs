@@ -39,11 +39,11 @@ namespace Reno.Comm
             }
             catch(SocketException e)
             {
-                Console.WriteLine("Error opening socket: {0}", e.Message);
+                Console.WriteLine("[-] Error opening socket: {0}", e.Message);
             }
             catch(Exception ex)
             {
-                Console.WriteLine("Error occurred in ClearChannel constructor: {0}", ex.Message);
+                Console.WriteLine("[-] Error occurred in ClearChannel constructor: {0}", ex.Message);
             }
             
         }
@@ -64,11 +64,11 @@ namespace Reno.Comm
             }
             catch (SocketException e)
             {
-                Console.WriteLine("Error opening socket: {0}", e.Message);
+                Console.WriteLine("[-] Error opening socket: {0}", e.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error occurred in ClearChannel constructor: {0}", ex.Message);
+                Console.WriteLine("[-] Error occurred in ClearChannel constructor: {0}", ex.Message);
             }
         }
         /// <summary>
@@ -246,7 +246,7 @@ namespace Reno.Comm
             }
             catch(IOException e)
             {
-                Console.WriteLine("Error closing connection: {0}", e.Message);
+                Console.WriteLine("[-] Error closing connection: {0}", e.Message);
             }
         }
     }
