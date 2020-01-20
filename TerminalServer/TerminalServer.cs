@@ -197,12 +197,18 @@ namespace TerminalServer
                 using (BinaryWriter fs = new BinaryWriter(File.OpenWrite(localPWD + "\\" + f)))
                 {
                     fs.Write(fileBytes, 0, fileBytes.Length);
+                    DownloadStatus();
                 }
             }
             else if(response.Type == CommChannel.ERROR)
             {
                 Console.WriteLine("Error downloading file");
             }
+        }
+
+        private void DownloadStatus()
+        {
+            Console.WriteLine(Console.BufferWidth);
         }
         /// <summary>
         /// Helper function to get the network connections
