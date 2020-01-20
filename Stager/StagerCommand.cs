@@ -138,7 +138,7 @@ namespace Stager
         /// </summary>
         private void ParseCommandString(string c)
         {
-            string[] splitCommandString = c.Split(",".ToCharArray());
+            string[] splitCommandString = c.ToLower().Split(",".ToCharArray()); // Make it all lower case no matter what
             Regex r = new Regex(@"beacon|load|add|remove", RegexOptions.IgnoreCase);
             if (r.IsMatch(splitCommandString[0]))
             {
@@ -150,14 +150,14 @@ namespace Stager
                 {
                     case "beacon":
                         command = Command.Beacon;
-                        if (!Int32.TryParse(splitCommandString[1], out beaconTime))
-#if DEBUG
-                            Console.WriteLine("[-] Beacon time could not be parsed");
-#endif
-                        if (!Int32.TryParse(splitCommandString[2], out jitter))
-#if DEBUG
-                            Console.WriteLine("[-] Jitter could not be parsed");
-#endif
+                        foreach(string s in splitCommandString)
+                        {
+                            if(s.Contains("jitter") || s.Contains("seconds"))
+                            {
+                                string[] tmp = s.Split("=".ToCharArray());
+                                arguments[tmp[0]] = tmp[1];
+                            }
+                        }
                         break;
                     case "load":
                         command = Command.Load;

