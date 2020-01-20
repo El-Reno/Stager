@@ -49,11 +49,11 @@ namespace Reno.Stages
             }
             catch (InvalidOperationException inv)
             {
-                Console.WriteLine("Invalid operation: " + inv.Message);
+                Console.WriteLine("[-] Invalid operation: " + inv.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error: " + e.Message);
+                Console.WriteLine("[-] Error: " + e.Message);
             }
 
             return directory;
@@ -85,7 +85,7 @@ namespace Reno.Stages
             }
             catch (UnauthorizedAccessException e)
             {
-                Console.WriteLine("Denied Access");
+                Console.WriteLine("[-] Denied Access");
             }
             return structure;
         }
@@ -114,15 +114,15 @@ namespace Reno.Stages
             }
             catch (UnauthorizedAccessException e)
             {
-                Console.WriteLine("Denied Access");
+                Console.WriteLine("[-] Denied Access");
             }
             catch (InvalidOperationException inv)
             {
-                Console.WriteLine("Invalid operation: " + inv.Message);
+                Console.WriteLine("[-] Invalid operation: " + inv.Message);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error: " + e.Message);
+                Console.WriteLine("[-] Error: " + e.Message);
             }
             writer.WriteEndElement();
             writer.Flush();

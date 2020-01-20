@@ -138,7 +138,7 @@ namespace Stager
         /// </summary>
         private void ParseCommandString(string c)
         {
-            string[] splitCommandString = c.ToLower().Split(",".ToCharArray()); // Make it all lower case no matter what
+            string[] splitCommandString = c.Split(",".ToCharArray()); // Make it all lower case no matter what
             Regex r = new Regex(@"beacon|load|add|remove", RegexOptions.IgnoreCase);
             if (r.IsMatch(splitCommandString[0]))
             {

@@ -97,6 +97,11 @@ namespace Stager
                     var executeTerminal = type.GetMethod("Execute");
                     executeTerminal.Invoke(terminalInstance, null);
                 }
+                else if (type.FullName.Equals("Reno.Stages.DirectoryTraversal"))
+                {
+                    Assembly a = Assembly.Load(assembly);
+
+                }
                 else
                 {
                     Console.WriteLine("[*] Loaded Type {0}", type);
