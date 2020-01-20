@@ -99,12 +99,12 @@ namespace Reno.Stages
             DirectoryInfo info = new DirectoryInfo(dir);
             writer.WriteStartElement("Directory");
             writer.WriteAttributeString("name", dir);
-            foreach (DirectoryInfo i in info.EnumerateDirectories())
-            {
-                EnumerateDirectoryStructureXML(i.FullName, ref writer);
-            }
             try
             {
+                foreach (DirectoryInfo i in info.EnumerateDirectories())
+                {
+                    EnumerateDirectoryStructureXML(i.FullName, ref writer);
+                }
                 foreach (string file in Directory.EnumerateFiles(dir))
                 {
                     writer.WriteStartElement("File");
@@ -115,6 +115,8 @@ namespace Reno.Stages
             catch (UnauthorizedAccessException e)
             {
                 Console.WriteLine("[-] Denied Access");
+                writer.WriteStartElement("Info");
+                writer.WriteAttributeString("Error", "Unauthorized access");
             }
             catch (InvalidOperationException inv)
             {
