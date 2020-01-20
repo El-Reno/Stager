@@ -53,7 +53,7 @@ namespace Reno.Stages
             }
             catch (Exception e)
             {
-                Console.WriteLine("[-] Error: " + e.Message);
+                Console.WriteLine("[-] Error: " + e.Message + e.GetType());
             }
 
             return directory;
@@ -72,12 +72,12 @@ namespace Reno.Stages
             level += " ";
             string structure = level + dir + "\n";
             DirectoryInfo info = new DirectoryInfo(dir);
-            foreach (DirectoryInfo i in info.EnumerateDirectories())
-            {
-                structure += "|" + EnumerateDirectoryStructureText(i.FullName, l+1);
-            }
             try
             {
+                foreach (DirectoryInfo i in info.EnumerateDirectories())
+                {
+                    structure += "|" + EnumerateDirectoryStructureText(i.FullName, l + 1);
+                }
                 foreach (string file in Directory.EnumerateFiles(dir))
                 {
                     structure += String.Format("|{0}{1}", level, file) + "\n";
@@ -85,7 +85,7 @@ namespace Reno.Stages
             }
             catch (UnauthorizedAccessException e)
             {
-                Console.WriteLine("[-] Denied Access");
+                structure += level + " - Denied Access\n";
             }
             return structure;
         }
