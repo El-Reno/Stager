@@ -263,5 +263,15 @@ namespace Reno.Comm
                 Console.WriteLine("[-] Error closing connection: {0}", e.Message);
             }
         }
+        /// <summary>
+        /// Returns true if the connection is open
+        /// </summary>
+        /// <returns></returns>
+        public override bool IsOpen()
+        {
+            if (tcpClient == null)
+                return false;
+            return tcpClient.Connected;
+        }
     }
 }

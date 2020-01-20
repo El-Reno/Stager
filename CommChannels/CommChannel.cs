@@ -41,5 +41,6 @@ namespace Reno.Comm
         public abstract byte[] Decompress(byte[] message);
         public abstract CommHeader ReceiveHeader();
         public abstract void Close();
+        public abstract bool IsOpen();
     }
 }

