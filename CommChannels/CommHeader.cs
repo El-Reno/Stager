@@ -28,7 +28,9 @@ namespace Reno.Comm
             this.data_length = data_length;
             this.reserved = reserved;
         }
-
+        /// <summary>
+        /// Returns the size of the header
+        /// </summary>
         public static int GetHeaderSize
         {
             get
@@ -36,6 +38,9 @@ namespace Reno.Comm
                 return HEADER_LENGTH;
             }
         }
+        /// <summary>
+        /// Gets the data of the header as a byte array
+        /// </summary>
         public byte[] GetBytes
         {
             get
