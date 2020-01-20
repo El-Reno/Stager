@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Net;
 using Reno.Comm;
+using System.IO.Compression;
 
 namespace Reno.Stages
 {
@@ -108,7 +109,42 @@ namespace Reno.Stages
             if (File.Exists(file))
             {
                 FileInfo fileInfo = new FileInfo(file);
-                long size = fileInfo.Length;
+                FileInfo tmp = new FileInfo("tmp.file");
+                // Compress the file if compression is on
+                if (header.Compression == CommChannel.GZIP)
+                {
+                    
+                    using (FileStream fsRead = fileInfo.OpenRead())
+                    {
+                        using (FileStream fsWrite = new FileStream(tmp.FullName, FileMode.Create))
+                        {
+                            using (GZipStream gs = new GZipStream(fsWrite, CompressionLevel.Optimal))
+                            {
+                                fsRead.CopyTo(gs);
+                            }
+                        }
+                    }
+                }
+                else if(header.Compression == CommChannel.DEFLATE)
+                {
+                    using (FileStream fsRead = fileInfo.OpenRead())
+                    {
+                        using (FileStream fsWrite = new FileStream(tmp.FullName, FileMode.Create))
+                        {
+                            using (DeflateStream ds = new DeflateStream(fsWrite, CompressionLevel.Optimal))
+                            {
+                                fsRead.CopyTo(ds);
+                            }
+                        }
+                    }
+                }
+                long size;
+                if (header.Compression != CommChannel.NONE) {
+                    size = tmp.Length;
+                    Console.WriteLine(size);
+                }
+                else
+                    size = fileInfo.Length;
                 long bytesSent = 0;
                 int read = 0;
                 byte[] bytes = new byte[CommChannel.CHUNK_SIZE];
@@ -128,14 +164,14 @@ namespace Reno.Stages
                                 fileStream.Seek(bytesSent, SeekOrigin.Current);
                                 read = fileStream.Read(b, 0, (int)(size - bytesSent));
                                 bytesSent += read;
-                                channel.SendBytes(b);
+                                channel.SendBytes(channel.Compress(b));
                             }
                             else
                             {
                                 fileStream.Seek(bytesSent, SeekOrigin.Current);
                                 read = fileStream.Read(bytes, 0, CommChannel.CHUNK_SIZE);
                                 bytesSent += read;
-                                channel.SendBytes(bytes);
+                                channel.SendBytes(channel.Compress(bytes));
                             }
                         }
                     }
@@ -148,6 +184,8 @@ namespace Reno.Stages
                         Console.WriteLine("Error during download: {0}", e.Message);
                     }
                 }
+                // Delete the tmp file
+                tmp.Delete();
             }
             // Send error if the file doesnt exist
             else
