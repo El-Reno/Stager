@@ -197,7 +197,7 @@ namespace TerminalServer
                 using (BinaryWriter fs = new BinaryWriter(File.OpenWrite(localPWD + "\\" + f)))
                 {
                     fs.Write(fileBytes, 0, fileBytes.Length);
-                    DownloadStatus();
+                    //DownloadStatus();
                 }
             }
             else if(response.Type == CommChannel.ERROR)
