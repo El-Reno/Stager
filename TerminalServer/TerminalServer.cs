@@ -190,14 +190,28 @@ namespace TerminalServer
             // Receive the file
             CommHeader response = channel.ReceiveHeader();
             if (response.Type == CommChannel.RESPONSE) {
-                byte[] fileBytes = channel.Decompress(channel.ReceiveBytes(response.DataLength));
+                int fileLength = response.DataLength;
+                int read = 0;
                 // Make sure the provided file is just the filename and not the path
                 string f = Path.GetFileName(file);
                 Console.WriteLine(localPWD + "\\" + f);
                 using (BinaryWriter fs = new BinaryWriter(File.OpenWrite(localPWD + "\\" + f)))
                 {
-                    fs.Write(fileBytes, 0, fileBytes.Length);
-                    DownloadStatus();
+                    while (read < fileLength)
+                    {
+                        if (fileLength - read < CommChannel.CHUNK_SIZE)
+                        {
+                            byte[] b = channel.Decompress(channel.ReceiveBytes(fileLength - read));
+                            read += fileLength - read;
+                            fs.Write(b);
+                        }
+                        else
+                        {
+                            byte[] b = channel.Decompress(channel.ReceiveBytes(CommChannel.CHUNK_SIZE));
+                            read += CommChannel.CHUNK_SIZE;
+                            fs.Write(b);
+                        }
+                    }
                 }
             }
             else if(response.Type == CommChannel.ERROR)
