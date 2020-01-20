@@ -77,7 +77,8 @@ namespace Reno.Comm
         /// <param name="message">Bytes to send</param>
         public override void SendBytes(byte[] message)
         {
-            bw.Write(message);
+            if(bw != null)
+                bw.Write(message);
         }
         /// <summary>
         /// Sends the byte over the tcp connection
@@ -104,9 +105,12 @@ namespace Reno.Comm
             int combined;
             // Combine byte fields to int
             combined = (header.Command << 24) | (header.Compression << 16) | (header.Type << 8) | (header.Reserved << 0);
-            bw.Write(IPAddress.HostToNetworkOrder(combined));
-            bw.Write(IPAddress.HostToNetworkOrder(header.Id));
-            bw.Write(IPAddress.HostToNetworkOrder(header.DataLength));
+            if (bw != null)
+            {
+                bw.Write(IPAddress.HostToNetworkOrder(combined));
+                bw.Write(IPAddress.HostToNetworkOrder(header.Id));
+                bw.Write(IPAddress.HostToNetworkOrder(header.DataLength));
+            }
         }
         /// <summary>
         /// Receives an amount of bytes from the tcp connection
@@ -121,7 +125,8 @@ namespace Reno.Comm
                 // Read the transmission into the buffer array
                 using (var b = new BinaryWriter(m))
                 {
-                    b.Write(br.ReadBytes(bytes));
+                    if(br != null)
+                        b.Write(br.ReadBytes(bytes));
                 }
             }
             return buffer;
@@ -132,7 +137,10 @@ namespace Reno.Comm
         /// <returns>Integer in host byte order</returns>
         public override int ReceiveInt()
         {
-            return IPAddress.NetworkToHostOrder(br.ReadInt32());
+            int readInt = 0;
+            if(br != null)
+                readInt = IPAddress.NetworkToHostOrder(br.ReadInt32());
+            return readInt;
         }
         /// <summary>
         /// Receive a byte from the tcp connection
@@ -140,7 +148,10 @@ namespace Reno.Comm
         /// <returns>Byte from the tcp connection</returns>
         public override byte ReceiveByte()
         {
-            return br.ReadByte();
+            byte readByte = 0;
+            if(br != null)
+                br.ReadByte();
+            return readByte;
         }
         /// <summary>
         /// Receives a CommandHeader from the connected server
@@ -239,10 +250,13 @@ namespace Reno.Comm
         {
             try
             {
-                bw.Close();
-                br.Close();
-                stream.Close();
-                tcpClient.Close();
+                if (bw != null && br != null && stream != null && tcpClient != null)
+                {
+                    bw.Close();
+                    br.Close();
+                    stream.Close();
+                    tcpClient.Close();
+                }
             }
             catch(IOException e)
             {

