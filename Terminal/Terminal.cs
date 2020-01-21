@@ -102,7 +102,14 @@ namespace Reno.Stages
                 }
             }
         }
-
+        /// <summary>
+        /// This is a helper function to allow the server to download a file from the client.
+        /// This function does things differntly than the others when it comes to compression.
+        /// If the CommChannel is compressed, this function compresses the file in that compression
+        /// method and then transmits it. The corresponding function on the server then decompresses.
+        /// </summary>
+        /// <param name="header">CommHeader that was sent from the server</param>
+        /// <param name="file">File to download</param>
         private void DownloadFile(CommHeader header, string file)
         {
             // Get the file and transmit
@@ -168,16 +175,15 @@ namespace Reno.Stages
                                 fileStream.Seek(bytesSent, SeekOrigin.Current);
                                 read = fileStream.Read(b, 0, (int)(size - bytesSent));
                                 bytesSent += read;
-                                channel.SendBytes(channel.Compress(b));
+                                channel.SendBytes(b);
                             }
                             else
                             {
                                 fileStream.Seek(bytesSent, SeekOrigin.Current);
                                 read = fileStream.Read(bytes, 0, CommChannel.CHUNK_SIZE);
                                 bytesSent += read;
-                                channel.SendBytes(channel.Compress(bytes));
+                                channel.SendBytes(bytes);
                             }
-                            Console.WriteLine("Bytes sent: {0}", bytesSent);
                         }
                     }
                     catch(IOException ioEx)
