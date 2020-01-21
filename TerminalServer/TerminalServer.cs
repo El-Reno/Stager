@@ -190,37 +190,39 @@ namespace TerminalServer
             // Receive the file
             CommHeader response = channel.ReceiveHeader();
             int size = response.DataLength;
-            int read = 0;
+            long read = 0;
             // Read the file and save it, then decompress as needed
             FileInfo tmp = new FileInfo(localPWD + "\\tmp");
             if (response.Type == CommChannel.RESPONSE) {
-                while(read < size)
+                using (FileStream fileStream = new FileStream(tmp.FullName, FileMode.Create))
                 {
-                    try
+                    while (read < size)
                     {
-                        using (FileStream fileStream = new FileStream(tmp.FullName, FileMode.Open))
+                        try
                         {
                             if (size - read < CommChannel.CHUNK_SIZE)
                             {
-                                byte[] b = channel.ReceiveBytes(size - read);
-                                fileStream.Write(b, read, b.Length);
+                                byte[] b = channel.ReceiveBytes((int)(size - read));
+                                fileStream.Seek(read, SeekOrigin.Current);
+                                fileStream.Write(b, (int)read, b.Length);
                                 read += b.Length;
                             }
                             else
                             {
                                 byte[] b = channel.ReceiveBytes(CommChannel.CHUNK_SIZE);
-                                fileStream.Write(b, read, b.Length);
+                                fileStream.Seek(read, SeekOrigin.Current);
+                                fileStream.Write(b, 0, b.Length);
                                 read += b.Length;
                             }
                         }
-                    }
-                    catch (IOException ioEx)
-                    {
-                        Console.WriteLine("Error with filestream: {0}", ioEx.Message);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("Error during download: {0}", e.Message);
+                        catch (IOException ioEx)
+                        {
+                            Console.WriteLine("Error with filestream: {0}", ioEx.Message);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Error during download: {0}", e.Message);
+                        }
                     }
                 }
             }
