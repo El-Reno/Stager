@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using Reno.Comm;
-using Reno.Utilities;
 
 namespace TerminalServer
 {
@@ -77,7 +76,6 @@ namespace TerminalServer
                 else if (compression.IsMatch(args[i]) && i < numArgs - 1)
                 {
                     Regex comp = new Regex("GZIP");
-                    Console.WriteLine(args[i]);
                     if (comp.IsMatch(args[i+1]))
                         arguments["compression"] = args[i + 1];
                     else
