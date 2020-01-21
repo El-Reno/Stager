@@ -132,7 +132,7 @@ namespace TerminalServer
                         expectReturn = true;
                         break;
                     case "DOWNLOAD":
-
+                        DownloadFile(commandString[1], r);
                         expectReturn = false;   // Helper function handles the return data
                         break;
                     case "download":
@@ -140,7 +140,7 @@ namespace TerminalServer
                         expectReturn = false; // Helper function handles the return data
                         break;
                     case "LPWD":
-
+                        Console.WriteLine(localPWD);
                         break;
                     case "lpwd":
                         Console.WriteLine(localPWD);
