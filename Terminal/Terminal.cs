@@ -110,6 +110,7 @@ namespace Reno.Stages
             {
                 FileInfo fileInfo = new FileInfo(file);
                 FileInfo tmp = new FileInfo("tmp.file");
+                string fileToRead;
                 // Compress the file if compression is on
                 if (header.Compression == CommChannel.GZIP)
                 {
@@ -141,10 +142,13 @@ namespace Reno.Stages
                 long size;
                 if (header.Compression != CommChannel.NONE) {
                     size = tmp.Length;
+                    fileToRead = tmp.FullName;
                     Console.WriteLine(size);
                 }
-                else
+                else {
+                    fileToRead = file;
                     size = fileInfo.Length;
+                }
                 long bytesSent = 0;
                 int read = 0;
                 byte[] bytes = new byte[CommChannel.CHUNK_SIZE];
@@ -156,7 +160,7 @@ namespace Reno.Stages
                     read = 0;
                     try
                     {
-                        using (FileStream fileStream = new FileStream(file, FileMode.Open))
+                        using (FileStream fileStream = new FileStream(fileToRead, FileMode.Open))
                         {
                             if (size - bytesSent < CommChannel.CHUNK_SIZE)
                             {
@@ -173,6 +177,7 @@ namespace Reno.Stages
                                 bytesSent += read;
                                 channel.SendBytes(channel.Compress(bytes));
                             }
+                            Console.WriteLine("Bytes sent: {0}", bytesSent);
                         }
                     }
                     catch(IOException ioEx)
