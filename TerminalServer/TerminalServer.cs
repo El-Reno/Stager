@@ -63,6 +63,12 @@ namespace TerminalServer
                     commandString = new string[] { "" };
                 else
                     commandString = Utility.ParseCommand(command);
+#if DEBUG
+                foreach(string s in commandString)
+                {
+                    Console.WriteLine("[*] Token: {0}", s);
+#endif
+                }
                 switch (commandString[0])
                 {
                     case "EXIT":

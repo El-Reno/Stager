@@ -11,7 +11,7 @@ namespace TerminalServer
         static void Main(string[] args)
         {
             Console.Title = "Reno Terminal Server";
-            TcpListener listener = new TcpListener(IPAddress.Parse("192.168.1.186"), 8888);
+            TcpListener listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 8888);
             listener.Start();
             Console.WriteLine("[*] Starting server");
             TcpClient client = listener.AcceptTcpClient();

