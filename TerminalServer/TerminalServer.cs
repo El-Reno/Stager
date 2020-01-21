@@ -126,12 +126,12 @@ namespace TerminalServer
                         expectReturn = true;
                         break;
                     case "UPLOAD":
-
-                        expectReturn = true;
+                        UploadFile(commandString[1], r);
+                        expectReturn = false;   // Helper function handles the return data
                         break;
                     case "upload":
-
-                        expectReturn = true;
+                        UploadFile(commandString[1], r);
+                        expectReturn = false;   // Helper function handles the return data
                         break;
                     case "DOWNLOAD":
                         DownloadFile(commandString[1], r);
@@ -161,6 +161,12 @@ namespace TerminalServer
                         }
                         Console.WriteLine(localPWD);
                         break;
+                    case "ldir":
+                        ListLocalDirectory(localPWD);
+                        break;
+                    case "LDIR":
+                        ListLocalDirectory(localPWD);
+                        break;
                     default:
                         continue;
                 }
@@ -176,11 +182,128 @@ namespace TerminalServer
             }
         }
         
-        private void UploadFile(FileInfo file, Random r)
+        private void ListLocalDirectory(string dir)
         {
+            DirectoryInfo localDir = new DirectoryInfo(dir);
+            StringBuilder output = new StringBuilder();
+            output.Append(GetFullPath(dir) + "\n");
+            try
+            {
+                foreach (DirectoryInfo d in localDir.EnumerateDirectories())
+                {
+                    output.Append(d.FullName + "\n");
+                }
+                foreach (FileInfo f in localDir.EnumerateFiles())
+                {
+                    output.Append(f.FullName + "\n");
+                }
+            }
+            catch(DirectoryNotFoundException dirNotFound)
+            {
+                Console.WriteLine("[-] Could not find file or directory: {0}", dirNotFound.Message);
+            }
+            catch(System.Security.SecurityException secEx)
+            {
+                Console.WriteLine("[-] Permission denied: {0}", secEx.Message);
+            }
+            Console.WriteLine(output.ToString());
 
         }
+        /// <summary>
+        /// Uploads a file to the target from the server
+        /// </summary>
+        /// <param name="file">File to upload</param>
+        /// <param name="r">Random object to create a session id</param>
+        private void UploadFile(string file, Random r)
+        {
+            // Transmit the command and filename
+            Console.WriteLine("[*] Uploading file {0}", file);
+            byte[] bytes = Encoding.UTF8.GetBytes(file);
+            byte[] compressedBytes = channel.Compress(bytes);
+            CommHeader uploadHeader = CreateHeader(CommChannel.UPLOAD, compression, CommChannel.COMMAND, r.Next(), compressedBytes.Length);
+            channel.SendHeader(uploadHeader);
+            channel.SendBytes(compressedBytes);
 
+            // First check if compression is enabled, if so, make a tmp file that is compressed
+            FileInfo fileToSend;
+            if(compression == CommChannel.NONE)
+            {
+                fileToSend = new FileInfo(GetFullPath(file));
+            }
+            else
+            {
+                // Open the file for reading
+                using (FileStream read = new FileStream(GetFullPath(file), FileMode.Open))
+                {
+                    if (compression == CommChannel.GZIP)
+                    {
+                        // Create a tmp file
+                        using (FileStream tGzip = new FileStream("tmp", FileMode.Create))
+                        {
+                            using (GZipStream gzip = new GZipStream(tGzip, CompressionLevel.Optimal))
+                            {
+                                read.CopyTo(gzip);
+                            }
+                        }
+                    }
+                    else if(compression == CommChannel.DEFLATE)
+                    {
+                        // Create a tmp file
+                        using (FileStream tDeflate = new FileStream("tmp", FileMode.Create))
+                        {
+                            using (DeflateStream deflate = new DeflateStream(tDeflate, CompressionLevel.Optimal))
+                            {
+                                read.CopyTo(deflate);
+                            }
+                        }
+                    }
+                }
+                // Use the tmp file we just made
+                fileToSend = new FileInfo("tmp");
+            }
+            long fileSize = fileToSend.Length;
+            CommHeader fileUploadHeader = CreateHeader(CommChannel.UPLOAD, compression, CommChannel.COMMAND, r.Next(), (int)fileSize);
+            channel.SendHeader(fileUploadHeader);
+            // Now transmit the file
+            if (fileToSend.Exists)
+            {
+                // Transmit the file
+                using (FileStream fileToTransmit = new FileStream(fileToSend.FullName, FileMode.Open))
+                {
+                    long sent = 0;
+                    long size = fileToSend.Length;
+                    while(sent < size)
+                    {
+                        if(size - sent < CommChannel.CHUNK_SIZE)
+                        {
+                            byte[] chunk = new byte[size - sent];
+                            fileToTransmit.Seek((int)sent, SeekOrigin.Begin);
+                            fileToTransmit.Read(chunk, 0, (int)(size - sent));
+                            sent += size - sent;
+                            channel.SendBytes(chunk);
+                            Utility.DownloadStatus(sent, size, fileToSend.Name);
+                        }
+                        else
+                        {
+                            byte[] chunk = new byte[CommChannel.CHUNK_SIZE];
+                            fileToTransmit.Seek((int)sent, SeekOrigin.Begin);
+                            fileToTransmit.Read(chunk, 0, CommChannel.CHUNK_SIZE);
+                            sent += CommChannel.CHUNK_SIZE;
+                            channel.SendBytes(chunk);
+                            Utility.DownloadStatus(sent, size, fileToSend.Name);
+                        }
+                    }
+                }
+            }
+            // Delete the tmp file
+            if (fileToSend.Name.Equals("tmp"))
+                fileToSend.Delete();
+        }
+        /// <summary>
+        /// Downloads a file from the target maching
+        /// </summary>
+        /// <param name="file">File to download</param>
+        /// <param name="r">Random object to create a session id</param>
         private void DownloadFile(string file, Random r)
         {
             // Transmit the command

