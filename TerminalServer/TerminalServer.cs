@@ -54,15 +54,15 @@ namespace TerminalServer
             Random r = new Random();
             bool run = true;
             bool expectReturn = false;
+            string[] commandString;
             while (run)
             {
                 Console.Write(prompt);
                 string command = Console.ReadLine();
-                if(command.Equals('\t'))
-                {
-                    Console.WriteLine("TAB");
-                }
-                string[] commandString = Utility.ParseCommand(command);
+                if (command.Equals(""))
+                    commandString = new string[] { "" };
+                else
+                    commandString = Utility.ParseCommand(command);
                 switch (commandString[0])
                 {
                     case "EXIT":
@@ -208,6 +208,8 @@ namespace TerminalServer
                                 fileStream.Seek(read, SeekOrigin.Begin);
                                 fileStream.Write(b, 0, b.Length);
                                 read += b.Length;
+                                DownloadStatus(read, size, file);
+                                Console.Write("\n");
                             }
                             else
                             {
@@ -215,6 +217,7 @@ namespace TerminalServer
                                 fileStream.Seek(read, SeekOrigin.Begin);
                                 fileStream.Write(b, 0, b.Length);
                                 read += b.Length;
+                                DownloadStatus(read, size, file);
                             }
                         }
                         catch (IOException ioEx)
@@ -289,10 +292,26 @@ namespace TerminalServer
             }
             return path;
         }
-
-        private void DownloadStatus()
+        /// <summary>
+        /// Helper function to print out download progress bar
+        /// Shows percentage based on 0-100
+        /// </summary>
+        /// <param name="bytesRead">Bytes read of the file</param>
+        /// <param name="downloadSize">Size of the file</param>
+        /// <param name="fileName">Name of file</param>
+        private void DownloadStatus(long bytesRead, long downloadSize, string fileName)
         {
-            Console.WriteLine(Console.BufferWidth);
+            // Get the current console BufferWidth
+            int width = Console.BufferWidth;
+            double percentComplete = Math.Round(((double)bytesRead / (double)downloadSize) * 100);
+            string progressBeginning = "Downloading " + fileName + " |";
+            string equalSigns = new String('=', (int)percentComplete);
+            int spaceRemaining = 100 - (int)percentComplete;
+            string spaces = new string(' ', spaceRemaining);
+            string progress = progressBeginning + equalSigns + spaces + "| " + percentComplete.ToString() + "%";
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            Console.Write(progress);
+            //Console.WriteLine(Console.BufferWidth);
         }
         /// <summary>
         /// Helper function to get the network connections
