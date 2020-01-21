@@ -469,7 +469,7 @@ namespace TerminalServer
                 int len = directory.Length;
                 CommHeader c = CreateHeader(CommChannel.LS, compression, CommChannel.COMMAND, r.Next(), len);
                 channel.SendHeader(c);
-                channel.SendBytes(channel.Compress(directory));
+                channel.SendBytes(directory);
             }
             else
             {
