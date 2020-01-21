@@ -270,5 +270,29 @@ namespace Reno.Comm
                 return false;
             return tcpClient.Connected;
         }
+        /// <summary>
+        /// Returns the compressions
+        /// </summary>
+        /// <returns>Compression in byte representation</returns>
+        public override byte Compression()
+        {
+            byte comp;
+            switch (compression)
+            {
+                case "GZIP":
+                    comp = CommChannel.GZIP;
+                    break;
+                case "DEFLATE":
+                    comp = CommChannel.DEFLATE;
+                    break;
+                case "NONE":
+                    comp = CommChannel.NONE;
+                    break;
+                default:
+                    comp = CommChannel.NONE;
+                    break;
+            }
+            return comp;
+        }
     }
 }

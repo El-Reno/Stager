@@ -16,7 +16,6 @@ namespace TerminalServer
     {
         CommChannel channel;
         byte compression;
-        bool isCompressed;
         string prompt, localPWD;
         /// <summary>
         /// Creates a new TerminalServer for the terminal program.
@@ -24,18 +23,10 @@ namespace TerminalServer
         /// </summary>
         /// <param name="channel">Comm channel for client/server communication</param>
         /// <param name="compression">Compression method - GZIP, DEFLATE, or NONE</param>
-        public TerminalServer(CommChannel channel, byte compression)
+        public TerminalServer(CommChannel channel)
         {
             this.channel = channel;
-            this.compression = compression;
-            if(compression == 0)
-            {
-                isCompressed = false;
-            }
-            else
-            {
-                isCompressed = true;
-            }
+            this.compression = channel.Compression();
             prompt = Environment.MachineName + ">";
             localPWD = Directory.GetCurrentDirectory();
         }
@@ -501,21 +492,11 @@ namespace TerminalServer
             if (commandString.Length > 1)
             {
                 string dir = commandString[1];
-                if (!isCompressed)
-                {
-                    int len = dir.Length;
-                    CommHeader c = CreateHeader(CommChannel.CD, compression, CommChannel.COMMAND, r.Next(), len);
-                    channel.SendHeader(c);
-                    channel.SendBytes(Encoding.UTF8.GetBytes(dir));
-                }
-                else
-                {
-                    byte[] compressed = channel.Compress(Encoding.UTF8.GetBytes(dir));
-                    int len = compressed.Length;
-                    CommHeader c = CreateHeader(CommChannel.CD, compression, CommChannel.COMMAND, r.Next(), len);
-                    channel.SendHeader(c);
-                    channel.SendBytes(compressed);
-                }
+                byte[] cd = channel.Compress(Encoding.UTF8.GetBytes(dir));
+                int len = cd.Length;
+                CommHeader c = CreateHeader(CommChannel.CD, compression, CommChannel.COMMAND, r.Next(), len);
+                channel.SendHeader(c);
+                channel.SendBytes(cd);
             }
             else
             {
