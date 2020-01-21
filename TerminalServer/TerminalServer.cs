@@ -474,21 +474,11 @@ namespace TerminalServer
             if (commandString.Length > 1)
             {
                 string dir = commandString[1];
-                if (!isCompressed)
-                {
-                    int len = dir.Length;
-                    CommHeader c = CreateHeader(CommChannel.LS, compression, CommChannel.COMMAND, r.Next(), len);
-                    channel.SendHeader(c);
-                    channel.SendBytes(Encoding.UTF8.GetBytes(dir));
-                }
-                else
-                {
-                    byte[] compressed = channel.Compress(Encoding.UTF8.GetBytes(dir));
-                    int len = compressed.Length;
-                    CommHeader c = CreateHeader(CommChannel.LS, compression, CommChannel.COMMAND, r.Next(), len);
-                    channel.SendHeader(c);
-                    channel.SendBytes(compressed);
-                }
+                byte[] directory = channel.Compress(Encoding.UTF8.GetBytes(dir));
+                int len = directory.Length;
+                CommHeader c = CreateHeader(CommChannel.LS, compression, CommChannel.COMMAND, r.Next(), len);
+                channel.SendHeader(c);
+                channel.SendBytes(channel.Compress(directory));
             }
             else
             {
