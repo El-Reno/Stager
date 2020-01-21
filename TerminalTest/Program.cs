@@ -17,7 +17,7 @@ namespace TerminalTest
             byte[] assemblyBytes = File.ReadAllBytes(assembly);
             Assembly a = Assembly.Load(assemblyBytes);
             Type terminal = a.GetType("Reno.Stages.Terminal");
-            ClearChannel channel = new ClearChannel("192.168.1.186", 8888, "GZIP");
+            ClearChannel channel = new ClearChannel("192.168.1.186", 8888, "DEFLATE");
             object[] p = new object[1];
             p[0] = channel;
             var terminalInstance = Activator.CreateInstance(terminal, p);

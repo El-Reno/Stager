@@ -184,7 +184,6 @@ namespace Reno.Stages
                                 bytesSent += read;
                                 channel.SendBytes(bytes);
                             }
-                            Console.WriteLine("Bytes sent: {0}", bytesSent);
                         }
                     }
                     catch(IOException ioEx)
