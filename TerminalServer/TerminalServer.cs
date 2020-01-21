@@ -305,13 +305,16 @@ namespace TerminalServer
             int width = Console.BufferWidth;
             double percentComplete = Math.Round(((double)bytesRead / (double)downloadSize) * 100);
             string progressBeginning = "Downloading " + fileName + " |";
-            string equalSigns = new String('=', (int)percentComplete);
-            int spaceRemaining = 100 - (int)percentComplete;
-            string spaces = new string(' ', spaceRemaining);
-            string progress = progressBeginning + equalSigns + spaces + "| " + percentComplete.ToString() + "%";
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            string progressEnd = "| " + percentComplete.ToString() + "%";
+            // How much screen buffer have we used so far
+            int bufferRemaining = width - (progressBeginning.Length + progressEnd.Length);
+            int numEquals = (int)Math.Round((percentComplete/100) * (double)bufferRemaining);
+            string equalSigns = new String('=', numEquals);
+            bufferRemaining -= equalSigns.Length;
+            string spaces = new string(' ', bufferRemaining);
+            string progress = progressBeginning + equalSigns + spaces + progressEnd;
+            Console.SetCursorPosition(0, Console.CursorTop);
             Console.Write(progress);
-            //Console.WriteLine(Console.BufferWidth);
         }
         /// <summary>
         /// Helper function to get the network connections
