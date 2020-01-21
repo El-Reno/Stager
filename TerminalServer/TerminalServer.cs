@@ -181,7 +181,10 @@ namespace TerminalServer
                 expectReturn = false;
             }
         }
-        
+        /// <summary>
+        /// Helper function to list out the Terminal Server's local directory
+        /// </summary>
+        /// <param name="dir">Directory to list</param>
         private void ListLocalDirectory(string dir)
         {
             DirectoryInfo localDir = new DirectoryInfo(dir);
