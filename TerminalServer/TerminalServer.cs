@@ -189,15 +189,39 @@ namespace TerminalServer
 
             // Receive the file
             CommHeader response = channel.ReceiveHeader();
+            int size = response.DataLength;
+            int read = 0;
+            // Read the file and save it, then decompress as needed
+            FileInfo tmp = new FileInfo(localPWD + "\\tmp");
             if (response.Type == CommChannel.RESPONSE) {
-                byte[] fileBytes = channel.Decompress(channel.ReceiveBytes(response.DataLength));
-                // Make sure the provided file is just the filename and not the path
-                string f = Path.GetFileName(file);
-                Console.WriteLine(localPWD + "\\" + f);
-                using (BinaryWriter fs = new BinaryWriter(File.OpenWrite(localPWD + "\\" + f)))
+                while(read < size)
                 {
-                    fs.Write(fileBytes, 0, fileBytes.Length);
-                    //DownloadStatus();
+                    try
+                    {
+                        using (FileStream fileStream = new FileStream(tmp.FullName, FileMode.Open))
+                        {
+                            if (size - read < CommChannel.CHUNK_SIZE)
+                            {
+                                byte[] b = channel.ReceiveBytes(size - read);
+                                fileStream.Write(b, read, b.Length);
+                                read += b.Length;
+                            }
+                            else
+                            {
+                                byte[] b = channel.ReceiveBytes(CommChannel.CHUNK_SIZE);
+                                fileStream.Write(b, read, b.Length);
+                                read += b.Length;
+                            }
+                        }
+                    }
+                    catch (IOException ioEx)
+                    {
+                        Console.WriteLine("Error with filestream: {0}", ioEx.Message);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Error during download: {0}", e.Message);
+                    }
                 }
             }
             else if(response.Type == CommChannel.ERROR)
