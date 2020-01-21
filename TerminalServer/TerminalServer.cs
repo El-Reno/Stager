@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
+using System.Text.RegularExpressions;
 using Reno.Comm;
 using Reno.Utilities;
 
@@ -189,7 +191,7 @@ namespace TerminalServer
 
             // Receive the file
             CommHeader response = channel.ReceiveHeader();
-            int size = response.DataLength;
+            long size = response.DataLength; // This field is an int, eventually will be a long
             long read = 0;
             // Read the file and save it, then decompress as needed
             FileInfo tmp = new FileInfo(localPWD + "\\tmp");
@@ -203,14 +205,14 @@ namespace TerminalServer
                             if (size - read < CommChannel.CHUNK_SIZE)
                             {
                                 byte[] b = channel.ReceiveBytes((int)(size - read));
-                                fileStream.Seek(read, SeekOrigin.Current);
-                                fileStream.Write(b, (int)read, b.Length);
+                                fileStream.Seek(read, SeekOrigin.Begin);
+                                fileStream.Write(b, 0, b.Length);
                                 read += b.Length;
                             }
                             else
                             {
                                 byte[] b = channel.ReceiveBytes(CommChannel.CHUNK_SIZE);
-                                fileStream.Seek(read, SeekOrigin.Current);
+                                fileStream.Seek(read, SeekOrigin.Begin);
                                 fileStream.Write(b, 0, b.Length);
                                 read += b.Length;
                             }
@@ -225,11 +227,67 @@ namespace TerminalServer
                         }
                     }
                 }
+                // Now decompress the file if required
+                string fullFilePath = GetFullPath(file);
+                // Rename the file if no compression, otherwise, decompress
+                if (response.Compression == CommChannel.NONE)
+                {
+                    if (File.Exists(tmp.FullName))
+                        File.Move(tmp.FullName, fullFilePath);
+                }
+                else
+                {
+                    using (FileStream fs = File.OpenRead(tmp.FullName))
+                    {
+                        using (FileStream outFS = new FileStream(fullFilePath, FileMode.Create, FileAccess.Write))
+                        {
+                            if (response.Compression == CommChannel.GZIP)
+                            {
+                                using (GZipStream gs = new GZipStream(fs, CompressionMode.Decompress))
+                                {
+                                    gs.CopyTo(outFS);
+                                }
+                            }
+                            else if (response.Compression == CommChannel.DEFLATE)
+                            {
+                                using (DeflateStream ds = new DeflateStream(fs, CompressionMode.Decompress))
+                                {
+                                    ds.CopyTo(outFS);
+                                }
+                            }
+                        }
+                    }
+                }
+                // Delete the tmp file
+                if(File.Exists(tmp.FullName))
+                    File.Delete(tmp.FullName);
             }
             else if(response.Type == CommChannel.ERROR)
             {
                 Console.WriteLine("Error downloading file");
             }
+        }
+
+        /// <summary>
+        /// Helper function to get the full path of the filesystem object(file or directory) supplied
+        /// This way, anything sent as a relative path is converted to fully qualified and used
+        /// </summary>
+        /// <param name="s">File system object to check</param>
+        /// <returns>Fully quallified path</returns>
+        private string GetFullPath(string s)
+        {
+            string path = "";
+            // Do some checking on the string - if the object is not fully qualified, make it
+            Regex fullPath = new Regex(@"^\\\\|^\\|^[a-zA-z]:\\");
+            if (!fullPath.IsMatch(s))
+            {
+                path = Path.Combine(localPWD, Path.GetFileName(s));
+            }
+            else
+            {
+                path = s;
+            }
+            return path;
         }
 
         private void DownloadStatus()
