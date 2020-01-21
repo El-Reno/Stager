@@ -63,12 +63,6 @@ namespace TerminalServer
                     commandString = new string[] { "" };
                 else
                     commandString = Utility.ParseCommand(command);
-#if DEBUG
-                foreach(string s in commandString)
-                {
-                    Console.WriteLine("[*] Token: {0}", s);
-#endif
-                }
                 switch (commandString[0])
                 {
                     case "EXIT":
@@ -214,7 +208,7 @@ namespace TerminalServer
                                 fileStream.Seek(read, SeekOrigin.Begin);
                                 fileStream.Write(b, 0, b.Length);
                                 read += b.Length;
-                                DownloadStatus(read, size, file);
+                                Utility.DownloadStatus(read, size, file);
                                 Console.Write("\n");
                             }
                             else
@@ -223,7 +217,7 @@ namespace TerminalServer
                                 fileStream.Seek(read, SeekOrigin.Begin);
                                 fileStream.Write(b, 0, b.Length);
                                 read += b.Length;
-                                DownloadStatus(read, size, file);
+                                Utility.DownloadStatus(read, size, file);
                             }
                         }
                         catch (IOException ioEx)
