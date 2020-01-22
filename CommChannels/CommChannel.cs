@@ -19,6 +19,7 @@ namespace Reno.Comm
         public const byte DELETE = 0b00000111;
         public const byte EXIT = 0b00001000;
         public const byte EXECUTE = 0b00001001;
+        public const byte SHELL = 0b00001010;
         // Compression 
         public const byte NONE = 0b10000000;
         public const byte GZIP = 0b01110000;

