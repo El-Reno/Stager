@@ -120,6 +120,7 @@ namespace TerminalServer
                         expectReturn = true;
                         break;
                     case "execute":
+                        Console.WriteLine("Execute command");
                         ExecuteCommand(commandString[1], r);
                         expectReturn = true;
                         break;
@@ -171,10 +172,13 @@ namespace TerminalServer
                 if (run && expectReturn)
                 {
                     CommHeader responseHeader = channel.ReceiveHeader();
-                    string sResponse = "";
-                    byte[] response = channel.Decompress(channel.ReceiveBytes(responseHeader.DataLength));
-                    sResponse = Encoding.UTF8.GetString(response);
-                    Console.WriteLine(sResponse);
+                    if (responseHeader.DataLength > 0)
+                    {
+                        string sResponse = "";
+                        byte[] response = channel.Decompress(channel.ReceiveBytes(responseHeader.DataLength));
+                        sResponse = Encoding.UTF8.GetString(response);
+                        Console.WriteLine(sResponse);
+                    }
                 }
                 expectReturn = false;
             }
@@ -419,6 +423,7 @@ namespace TerminalServer
 
         private void ExecuteCommand(string command, Random r)
         {
+            Console.WriteLine("[*] the command is: {0}", command);
             byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(command));
             CommHeader executeHeader = CreateHeader(CommChannel.EXECUTE, compression, CommChannel.COMMAND, r.Next(), bytes.Length);
             channel.SendHeader(executeHeader);
