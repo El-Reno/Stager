@@ -115,6 +115,14 @@ namespace TerminalServer
                         Netstat(r);
                         expectReturn = true;
                         break;
+                    case "EXECUTE":
+                        ExecuteCommand(commandString[1], r);
+                        expectReturn = true;
+                        break;
+                    case "execute":
+                        ExecuteCommand(commandString[1], r);
+                        expectReturn = true;
+                        break;
                     case "UPLOAD":
                         UploadFile(commandString[1], r);
                         expectReturn = false;   // Helper function handles the return data
@@ -408,29 +416,13 @@ namespace TerminalServer
             }
             return path;
         }
-        /// <summary>
-        /// Helper function to print out download progress bar
-        /// Shows percentage based on 0-100
-        /// </summary>
-        /// <param name="bytesRead">Bytes read of the file</param>
-        /// <param name="downloadSize">Size of the file</param>
-        /// <param name="fileName">Name of file</param>
-        private void DownloadStatus(long bytesRead, long downloadSize, string fileName)
+
+        private void ExecuteCommand(string command, Random r)
         {
-            // Get the current console BufferWidth
-            int width = Console.BufferWidth;
-            double percentComplete = Math.Round(((double)bytesRead / (double)downloadSize) * 100);
-            string progressBeginning = "Downloading " + fileName + " |";
-            string progressEnd = "| " + percentComplete.ToString() + "%";
-            // How much screen buffer have we used so far
-            int bufferRemaining = width - (progressBeginning.Length + progressEnd.Length);
-            int numEquals = (int)Math.Round((percentComplete/100) * (double)bufferRemaining);
-            string equalSigns = new String('=', numEquals);
-            bufferRemaining -= equalSigns.Length;
-            string spaces = new string(' ', bufferRemaining);
-            string progress = progressBeginning + equalSigns + spaces + progressEnd;
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write(progress);
+            byte[] bytes = channel.Compress(Encoding.UTF8.GetBytes(command));
+            CommHeader executeHeader = CreateHeader(CommChannel.EXECUTE, compression, CommChannel.COMMAND, r.Next(), bytes.Length);
+            channel.SendHeader(executeHeader);
+            channel.SendBytes(bytes);
         }
         /// <summary>
         /// Helper function to get the network connections
