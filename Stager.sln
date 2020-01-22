@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utilities", "Utilities\Util
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TerminalTest", "TerminalTest\TerminalTest.csproj", "{145452DF-7CF6-4F16-9B43-01E7B8E966D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilityTest", "UtilityTest\UtilityTest.csproj", "{601DDB05-D3F7-4051-BA6D-A06D091B0DAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UtilityTest", "UtilityTest\UtilityTest.csproj", "{601DDB05-D3F7-4051-BA6D-A06D091B0DAE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
