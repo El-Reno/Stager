@@ -20,7 +20,7 @@ namespace TerminalServer
                 listener.Start();
                 Console.WriteLine("[*] Starting server");
                 TcpClient client = listener.AcceptTcpClient();
-                CommChannel channel = new ClearChannel(client, "GZIP");
+                CommChannel channel = new ClearChannel(client, arguments["compression"]);
                 TerminalServer server = new TerminalServer(channel);
                 server.Start();
             }
@@ -31,6 +31,7 @@ namespace TerminalServer
             }
             catch(Exception e)
             {
+                Console.WriteLine(e.Message);
                 Usage();
             }
         }
@@ -81,7 +82,7 @@ namespace TerminalServer
                 }
                 else if (compression.IsMatch(args[i]) && i < numArgs - 1)
                 {
-                    Regex comp = new Regex("GZIP");
+                    Regex comp = new Regex("GZIP|DEFLATE|NONE");
                     if (comp.IsMatch(args[i+1]))
                         arguments["compression"] = args[i + 1];
                     else
