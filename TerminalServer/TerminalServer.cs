@@ -127,14 +127,6 @@ namespace TerminalServer
                         else
                             expectReturn = false;
                         break;
-                    case "SHELL":
-                        ExecuteShell(r);
-                        expectReturn = false;
-                        break;
-                    case "shell":
-                        ExecuteShell(r);
-                        expectReturn = false;
-                        break;
                     case "UPLOAD":
                         UploadFile(commandString[1], r);
                         expectReturn = false;   // Helper function handles the return data
@@ -448,32 +440,6 @@ namespace TerminalServer
                 success = 1;
             }
             return success;
-        }
-        /// <summary>
-        /// Helper function to facilitate executing and interacting with a shell on the target
-        /// </summary>
-        /// <param name="r">Random object to create a session id</param>
-        private void ExecuteShell(Random r)
-        {
-            bool run = true;
-            CommHeader shellHeader = CreateHeader(CommChannel.SHELL, compression, CommChannel.COMMAND, r.Next(), 0);
-            channel.SendHeader(shellHeader);
-            while (run)
-            {
-                // Read input
-                CommHeader response = channel.ReceiveHeader();
-                byte[] bytes = channel.Decompress(channel.ReceiveBytes(response.DataLength));
-                string output = Encoding.UTF8.GetString(bytes);
-                Console.WriteLine(output);
-                // Wait for user commands then send
-                string input = Console.ReadLine();
-                byte[] command = Encoding.UTF8.GetBytes(input);
-                CommHeader commandHeader = CreateHeader(CommChannel.SHELL, compression, CommChannel.RESPONSE, r.Next(), command.Length);
-                channel.SendHeader(commandHeader);
-                channel.SendBytes(channel.Compress(command));
-                if (input.Equals("exit"))
-                    run = false;
-            }
         }
         /// <summary>
         /// Helper function to get the network connections
