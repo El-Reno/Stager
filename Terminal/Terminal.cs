@@ -108,6 +108,7 @@ namespace Reno.Stages
                             SendProcessList(header);
                             break;
                         case CommChannel.EXECUTE:
+                            Console.WriteLine("In EXECUTE");
                             ExecuteCommand(header);
                             break;
                     }
@@ -484,7 +485,8 @@ namespace Reno.Stages
             byte[] commandBytes = Encoding.UTF8.GetBytes(commandOutput);
             CommHeader commandHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, commandBytes.Length);
             channel.SendHeader(commandHeader);
-            channel.SendBytes(commandBytes);
+            if (commandBytes.Length > 0)    
+                channel.SendBytes(commandBytes);
         }
         /// <summary>
         /// Helper function to print out the directory listing
