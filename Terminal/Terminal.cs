@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Net;
 using Reno.Comm;
 using System.IO.Compression;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace Reno.Stages
 {
@@ -110,7 +112,6 @@ namespace Reno.Stages
                         case CommChannel.EXECUTE:
                             ExecuteCommand(header);
                             break;
-                            
                     }
                 }
                 catch(IOException ioe)
