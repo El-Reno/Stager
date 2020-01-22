@@ -16,25 +16,30 @@ namespace TerminalServer
             try
             {
                 arguments = ParseArgs(args);
+                TcpListener listener = new TcpListener(IPAddress.Parse(arguments["server"]), Int32.Parse(arguments["port"]));
+                listener.Start();
+                Console.WriteLine("[*] Starting server");
+                TcpClient client = listener.AcceptTcpClient();
+                CommChannel channel = new ClearChannel(client, "GZIP");
+                TerminalServer server = new TerminalServer(channel);
+                server.Start();
             }
             catch(ArgumentException e)
             {
                 Console.WriteLine(e.Message);
+                Usage();
             }
-            TcpListener listener = new TcpListener(IPAddress.Parse(arguments["server"]), Int32.Parse(arguments["port"]));
-            listener.Start();
-            Console.WriteLine("[*] Starting server");
-            TcpClient client = listener.AcceptTcpClient();
-            CommChannel channel = new ClearChannel(client, "GZIP");
-            TerminalServer server = new TerminalServer(channel);
-            server.Start();
+            catch(Exception e)
+            {
+                Usage();
+            }
         }
         /// <summary>
         /// Prints help menu for the executable
         /// </summary>
-        private static void HelpMenu()
+        private static void Usage()
         {
-
+            Console.WriteLine("Usage: {0} --server [server ip] --port [port] --compression [GZIP|DEFLATE|NONE]", System.AppDomain.CurrentDomain.FriendlyName);
         }
         /// <summary>
         /// Parses the arguments that should be supplied to the terminal server.
@@ -50,6 +55,7 @@ namespace TerminalServer
             Regex port = new Regex("^--port");
             Regex compression = new Regex("^--compression");
             int numArgs = args.Length;
+
             for(int i = 0; i < numArgs; i++)
             {
                 // Check if it has a flag we're expecting
