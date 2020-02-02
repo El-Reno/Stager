@@ -4,12 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Text.RegularExpressions;
-using System.Net;
 
 namespace Stager
 {
@@ -35,6 +31,7 @@ namespace Stager
                 Console.WriteLine(e.Message);
             }
         }
+
         /// <summary>
         /// Parses the arguments that should be supplied to the terminal server.
         /// Throws ArgumentException if the supplied arguments are not correct
