@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.ServiceProcess;
 using System.Timers;
 using Stager;
@@ -23,7 +24,8 @@ namespace CommunicationService
         protected override void OnStart(string[] args)
         {
             base.OnStart(args);
-            stager = new StageZero(5, 5);
+            FileInfo f = new FileInfo("vmcom20.dat");
+            stager = new StageZero(f, 5, 5);
             timer.Start();
             Console.Read();
         }

