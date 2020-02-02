@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Stager
 {
-    enum Command
+    public enum Command
     {
          Beacon, Load, Add, Remove
     }

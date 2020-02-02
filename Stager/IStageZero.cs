@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Stager
 {
-    interface IStageZero
+    public interface IStageZero
     {
         Task<StagerCommand> RequestCommand(Uri site);
         Task<byte[]> RequestStage(Uri site);
