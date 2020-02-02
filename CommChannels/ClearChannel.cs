@@ -135,8 +135,12 @@ namespace Reno.Comm
         public override int ReceiveInt()
         {
             int readInt = 0;
-            if(br != null)
-                readInt = IPAddress.NetworkToHostOrder(br.ReadInt32());
+            try
+            {
+                if (br != null)
+                    readInt = IPAddress.NetworkToHostOrder(br.ReadInt32());
+            }
+            catch (Exception e) { }
             return readInt;
         }
         /// <summary>
@@ -146,8 +150,12 @@ namespace Reno.Comm
         public override byte ReceiveByte()
         {
             byte readByte = 0;
-            if(br != null)
-                br.ReadByte();
+            try
+            {
+                if (br != null)
+                    readByte = br.ReadByte();
+            }
+            catch (Exception e) { }
             return readByte;
         }
         /// <summary>

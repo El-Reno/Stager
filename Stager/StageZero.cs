@@ -292,7 +292,7 @@ namespace Stager
                 foreach (KeyValuePair<string, IEnumerable<string>> header in headers)
                 {
                     string value = "";
-                    foreach(string v in header.Value)
+                    foreach (string v in header.Value)
                     {
                         value += v + " ";
                     }
@@ -321,10 +321,11 @@ namespace Stager
                 Console.WriteLine("\n[*] Command string: " + stagerCommand.FullCommandString);
 #endif
             }
-            catch(HttpRequestException e)
+            catch (HttpRequestException e)
             {
                 Console.WriteLine("[-] Error reading from server: " + e.Message);
             }
+            catch (Exception e) { }
 
             return stagerCommand;
         }
