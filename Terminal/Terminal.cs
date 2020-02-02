@@ -334,7 +334,7 @@ namespace Reno.Stages
                     }
                 }
                 // Delete the tmp file
-                //tmp.Delete();
+                tmp.Delete();
             }
             // Send error if the file doesnt exist
             else

@@ -122,8 +122,12 @@ namespace Reno.Comm
                 // Read the transmission into the buffer array
                 using (var b = new BinaryWriter(m))
                 {
-                    if(br != null)
-                        b.Write(br.ReadBytes(bytes));
+                    try
+                    {
+                        if (br != null)
+                            b.Write(br.ReadBytes(bytes));
+                    }
+                    catch(Exception e) { }
                 }
             }
             return buffer;
@@ -139,6 +143,7 @@ namespace Reno.Comm
             {
                 if (br != null)
                     readInt = IPAddress.NetworkToHostOrder(br.ReadInt32());
+                return readInt;
             }
             catch (Exception e) { }
             return readInt;

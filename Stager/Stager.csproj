@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{7E9CCC88-7EE7-4383-856A-33A544B2DBC3}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>Stager</RootNamespace>
     <AssemblyName>Stager</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
