@@ -24,7 +24,8 @@ namespace CommunicationService
         protected override void OnStart(string[] args)
         {
             base.OnStart(args);
-            FileInfo f = new FileInfo("vmcom20.dat");
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + @"\vmcom20.dat";
+            FileInfo f = new FileInfo(filepath);
             stager = new StageZero(f, 5, 5);
             timer.Start();
             Console.Read();
