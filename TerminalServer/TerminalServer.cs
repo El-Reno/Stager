@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Reno.Comm;
@@ -17,6 +18,7 @@ namespace TerminalServer
         CommChannel channel;
         byte compression;
         string prompt, localPWD;
+        string[] commands = new[] { "exit", "ls", "pwd", "cd", "delete", "ps", "netstat", "execute", "upload", "download", "lpwd", "lcd", "ldir" };
         /// <summary>
         /// Creates a new TerminalServer for the terminal program.
         /// The operator interacts with the server and the server interacts with the client machine
@@ -45,132 +47,138 @@ namespace TerminalServer
             bool run = true;
             bool expectReturn = false;
             string[] commandString;
+            string command = "";
             while (run)
             {
-                Console.Write(prompt);
-                string command = Console.ReadLine();
+                Console.Write("\n" + prompt);
+                command = ReadConsole();
+                //Console.Write("\n ******** Command: " + command);
                 if (command.Equals(""))
-                    commandString = new string[] { "" };
-                else
-                    commandString = Utility.ParseCommand(command);
-                switch (commandString[0])
                 {
-                    case "EXIT":
-                        run = false;
-                        CommHeader a = CreateHeader(CommChannel.EXIT, compression, CommChannel.COMMAND, r.Next(), 0);
-                        channel.SendHeader(a);
-                        channel.Close();
-                        break;
-                    case "exit":
-                        run = false;
-                        CommHeader b = CreateHeader(CommChannel.EXIT, compression, CommChannel.COMMAND, r.Next(), 0);
-                        channel.SendHeader(b);
-                        channel.Close();
-                        break;
-                    case "LS":
-                        ListDirectory(commandString, r);
-                        expectReturn = true;
-                        break;
-                    case "ls":
-                        ListDirectory(commandString, r);
-                        expectReturn = true;
-                        break;
-                    case "PWD":
-                        PresentWorkingDirectory(r);
-                        expectReturn = true;
-                        break;
-                    case "pwd":
-                        PresentWorkingDirectory(r);
-                        expectReturn = true;
-                        break;
-                    case "CD":
-                        ChangeDirectory(commandString, r);
-                        expectReturn = true;
-                        break;
-                    case "cd":
-                        ChangeDirectory(commandString, r);
-                        expectReturn = true;
-                        break;
-                    case "DELETE":
-                        DeleteFilesysObject(commandString, r);
-                        expectReturn = true;
-                        break;
-                    case "delete":
-                        DeleteFilesysObject(commandString, r);
-                        expectReturn = true;
-                        break;
-                    case "PS":
-                        ProcessList(r);
-                        expectReturn = true;
-                        break;
-                    case "ps":
-                        ProcessList(r);
-                        expectReturn = true;
-                        break;
-                    case "NETSTAT":
-                        Netstat(r);
-                        expectReturn = true;
-                        break;
-                    case "netstat":
-                        Netstat(r);
-                        expectReturn = true;
-                        break;
-                    case "EXECUTE":
-                        if (ExecuteCommand(commandString, r) == 1)
+                    commandString = new string[] { "" };
+                }
+                else
+                {
+                    commandString = Utility.ParseCommand(command);
+                    switch (commandString[0])
+                    {
+                        case "EXIT":
+                            run = false;
+                            CommHeader a = CreateHeader(CommChannel.EXIT, compression, CommChannel.COMMAND, r.Next(), 0);
+                            channel.SendHeader(a);
+                            channel.Close();
+                            break;
+                        case "exit":
+                            run = false;
+                            CommHeader b = CreateHeader(CommChannel.EXIT, compression, CommChannel.COMMAND, r.Next(), 0);
+                            channel.SendHeader(b);
+                            channel.Close();
+                            break;
+                        case "LS":
+                            ListDirectory(commandString, r);
                             expectReturn = true;
-                        else
-                            expectReturn = false;
-                        break;
-                    case "execute":
-                        if (ExecuteCommand(commandString, r) == 1)
+                            break;
+                        case "ls":
+                            ListDirectory(commandString, r);
                             expectReturn = true;
-                        else
-                            expectReturn = false;
-                        break;
-                    case "UPLOAD":
-                        UploadFile(commandString[1], r);
-                        expectReturn = false;   // Helper function handles the return data
-                        break;
-                    case "upload":
-                        UploadFile(commandString[1], r);
-                        expectReturn = false;   // Helper function handles the return data
-                        break;
-                    case "DOWNLOAD":
-                        DownloadFile(commandString[1], r);
-                        expectReturn = false;   // Helper function handles the return data
-                        break;
-                    case "download":
-                        DownloadFile(commandString[1], r);
-                        expectReturn = false; // Helper function handles the return data
-                        break;
-                    case "LPWD":
-                        Console.WriteLine(localPWD);
-                        break;
-                    case "lpwd":
-                        Console.WriteLine(localPWD);
-                        break;
-                    case "LCD":
-                        if (Directory.Exists(commandString[1]))
-                        {
-                            localPWD = commandString[1];
-                        }
-                        Console.WriteLine(localPWD);
-                        break;
-                    case "lcd":
-                        if (Directory.Exists(commandString[1]))
-                        {
-                            localPWD = commandString[1];
-                        }
-                        Console.WriteLine(localPWD);
-                        break;
-                    case "ldir":
-                        ListLocalDirectory(localPWD);
-                        break;
-                    case "LDIR":
-                        ListLocalDirectory(localPWD);
-                        break;
-                    default:
-                        continue;
+                            break;
+                        case "PWD":
+                            PresentWorkingDirectory(r);
+                            expectReturn = true;
+                            break;
+                        case "pwd":
+                            PresentWorkingDirectory(r);
+                            expectReturn = true;
+                            break;
+                        case "CD":
+                            ChangeDirectory(commandString, r);
+                            expectReturn = true;
+                            break;
+                        case "cd":
+                            ChangeDirectory(commandString, r);
+                            expectReturn = true;
+                            break;
+                        case "DELETE":
+                            DeleteFilesysObject(commandString, r);
+                            expectReturn = true;
+                            break;
+                        case "delete":
+                            DeleteFilesysObject(commandString, r);
+                            expectReturn = true;
+                            break;
+                        case "PS":
+                            ProcessList(r);
+                            expectReturn = true;
+                            break;
+                        case "ps":
+                            ProcessList(r);
+                            expectReturn = true;
+                            break;
+                        case "NETSTAT":
+                            Netstat(r);
+                            expectReturn = true;
+                            break;
+                        case "netstat":
+                            Netstat(r);
+                            expectReturn = true;
+                            break;
+                        case "EXECUTE":
+                            if (ExecuteCommand(commandString, r) == 1)
+                                expectReturn = true;
+                            else
+                                expectReturn = false;
+                            break;
+                        case "execute":
+                            if (ExecuteCommand(commandString, r) == 1)
+                                expectReturn = true;
+                            else
+                                expectReturn = false;
+                            break;
+                        case "UPLOAD":
+                            UploadFile(commandString[1], r);
+                            expectReturn = false;   // Helper function handles the return data
+                            break;
+                        case "upload":
+                            UploadFile(commandString[1], r);
+                            expectReturn = false;   // Helper function handles the return data
+                            break;
+                        case "DOWNLOAD":
+                            DownloadFile(commandString[1], r);
+                            expectReturn = false;   // Helper function handles the return data
+                            break;
+                        case "download":
+                            DownloadFile(commandString[1], r);
+                            expectReturn = false; // Helper function handles the return data
+                            break;
+                        case "LPWD":
+                            Console.WriteLine("\n" + localPWD);
+                            break;
+                        case "lpwd":
+                            Console.WriteLine("\n" + localPWD);
+                            break;
+                        case "LCD":
+                            if (Directory.Exists(commandString[1]))
+                            {
+                                localPWD = commandString[1];
+                            }
+                            Console.WriteLine(localPWD);
+                            break;
+                        case "lcd":
+                            if (Directory.Exists(commandString[1]))
+                            {
+                                localPWD = commandString[1];
+                            }
+                            Console.WriteLine(localPWD);
+                            break;
+                        case "ldir":
+                            ListLocalDirectory(localPWD);
+                            break;
+                        case "LDIR":
+                            ListLocalDirectory(localPWD);
+                            break;
+                        default:
+                            continue;
+                    }
                 }
                 if (run && expectReturn)
                 {
@@ -180,12 +188,72 @@ namespace TerminalServer
                         string sResponse = "";
                         byte[] response = channel.Decompress(channel.ReceiveBytes(responseHeader.DataLength));
                         sResponse = Encoding.UTF8.GetString(response);
-                        Console.WriteLine(sResponse);
+                        Console.WriteLine("\n" + sResponse);
                     }
                 }
                 expectReturn = false;
             }
         }
+        /// <summary>
+        /// This function captures console input and allows for capturing of keys.
+        /// 
+        /// First version supports tab completion and will eventually support other key presses
+        /// </summary>
+        /// <returns></returns>
+        private string ReadConsole()
+        {
+            string input = "";
+            bool waitForCommand = true;
+            // Stay in a loop, waiting for keys to be pressed. Check for Tab, Enter, and Backspace
+            while(waitForCommand)
+            {
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                if(key.Key == ConsoleKey.Tab)
+                {
+                    string currentInput = input.ToLower();
+                    string match = commands.FirstOrDefault(s => s.StartsWith(currentInput));
+
+                    if (match != null)
+                    {
+                        input = match;
+                        // Make sure the prompt stays where it is at
+                        Console.SetCursorPosition(prompt.Length, Console.CursorTop);
+                        Console.Write(input);
+                    }
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                {
+                    break;
+                }
+                else if (key.Key == ConsoleKey.Backspace)
+                {
+                    if(input.Length > 0)
+                    {
+                        input = input.Substring(0, input.Length - 1);
+                        Console.Write("\b \b");
+                    }
+                }
+                else
+                {
+                    Console.Write(key.KeyChar);
+                    input += key.KeyChar;
+                }
+            }
+            
+            return input; 
+        }
+
+        /// <summary>
+        /// This is a helper function to clear the console. It sets the cursor back to thee starting point and clears the line
+        /// </summary>
+        private void ClearConsole()
+        {
+            int currentLineCursor = Console.CursorTop;
+            Console.SetCursorPosition(0, currentLineCursor);
+            Console.Write(" ");
+            Console.SetCursorPosition(0, currentLineCursor);
+        }
+
         /// <summary>
         /// Helper function to list out the Terminal Server's local directory
         /// </summary>
@@ -194,7 +262,7 @@ namespace TerminalServer
         {
             DirectoryInfo localDir = new DirectoryInfo(dir);
             StringBuilder output = new StringBuilder();
-            output.Append(GetFullPath(dir) + "\n");
+            output.Append("\n" + GetFullPath(dir) + "\n");
             try
             {
                 foreach (DirectoryInfo d in localDir.EnumerateDirectories())
