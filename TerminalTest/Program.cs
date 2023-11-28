@@ -15,11 +15,11 @@ namespace TerminalTest
         {
             try
             {
-                string assembly = @"C:\Users\kylee\source\repos\Stager\Terminal\bin\Debug\netstandard2.0\Terminal.dll";
+                string assembly = @"C:\Users\kylee\OneDrive\Documents\Programming Projects\Stager\Terminal\bin\Debug\netstandard2.0\Terminal.dll";
                 byte[] assemblyBytes = File.ReadAllBytes(assembly);
                 Assembly a = Assembly.Load(assemblyBytes);
                 Type terminal = a.GetType("Reno.Stages.Terminal");
-                ClearChannel channel = new ClearChannel("192.168.1.62", 8888, "GZIP");
+                ClearChannel channel = new ClearChannel("127.0.0.1", 8888, "GZIP");
                 object[] p = new object[1];
                 p[0] = channel;
                 var terminalInstance = Activator.CreateInstance(terminal, p);
